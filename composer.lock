@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "01a9da7555b27b63a86fafda2eba0f15",
+    "content-hash": "b89da1916e142997a44089d67a1d2523",
     "packages": [
         {
             "name": "composer/installers",
@@ -444,6 +444,90 @@
                 "environment"
             ],
             "time": "2018-07-29T20:33:41+00:00"
+        },
+        {
+            "name": "wp-plugin/js_composer",
+            "version": "5.5.4",
+            "dist": {
+                "type": "zip",
+                "url": "https://c-themes.com/plugins/js_composer.zip",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": ">=1.4"
+            },
+            "type": "wordpress-plugin"
+        },
+        {
+            "name": "wp-plugin/revslider",
+            "version": "5.4.8",
+            "dist": {
+                "type": "zip",
+                "url": "https://c-themes.com/plugins/revslider.zip",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": ">=1.4"
+            },
+            "type": "wordpress-plugin"
+        },
+        {
+            "name": "wp-theme/travelo",
+            "version": "5.4.8",
+            "dist": {
+                "type": "zip",
+                "url": "https://drive.google.com/uc?export=download&id=1hV6ZbUMeQ9-_5krMyZRigf0PaRGBAW_r",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": ">=1.4"
+            },
+            "type": "wordpress-theme"
+        },
+        {
+            "name": "wpackagist-plugin/contact-form-7",
+            "version": "dev-trunk",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/contact-form-7/",
+                "reference": "trunk"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/contact-form-7.zip?timestamp=1538381417",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/contact-form-7/",
+            "time": "2018-10-01T08:10:17+00:00"
+        },
+        {
+            "name": "wpackagist-plugin/mailchimp-for-wp",
+            "version": "dev-trunk",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/mailchimp-for-wp/",
+                "reference": "trunk"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/mailchimp-for-wp.zip?timestamp=1536654969",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/mailchimp-for-wp/",
+            "time": "2018-09-11T08:36:09+00:00"
         }
     ],
     "packages-dev": [
@@ -678,6 +762,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "wpackagist-plugin/contact-form-7": 20,
+        "wpackagist-plugin/mailchimp-for-wp": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": false,
