@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2f38c5aceb77000fcf1b50004bda1bc7",
+    "content-hash": "b07c05b8f346b5441648f7517928e09e",
     "packages": [
         {
             "name": "composer/installers",
@@ -384,10 +384,10 @@
         },
         {
             "name": "koodimonni-plugin-language/woocommerce-ar",
-            "version": "3.4.5",
+            "version": "3.5.0",
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/translation/plugin/woocommerce/3.4.5/ar.zip",
+                "url": "https://downloads.wordpress.org/translation/plugin/woocommerce/3.5.0/ar.zip",
                 "reference": null,
                 "shasum": null
             },
@@ -405,10 +405,10 @@
         },
         {
             "name": "koodimonni-plugin-language/woocommerce-he_il",
-            "version": "3.4.5",
+            "version": "3.5.0",
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/translation/plugin/woocommerce/3.4.5/he_IL.zip",
+                "url": "https://downloads.wordpress.org/translation/plugin/woocommerce/3.5.0/he_IL.zip",
                 "reference": null,
                 "shasum": null
             },
@@ -1023,30 +1023,98 @@
             "type": "wordpress-plugin"
         },
         {
-            "name": "wp-theme/travelo",
-            "version": "5.4.8",
+            "name": "wp-plugin/wpml",
+            "version": "4.0.4",
             "dist": {
                 "type": "zip",
-                "url": "https://drive.google.com/uc?export=download&id=1hV6ZbUMeQ9-_5krMyZRigf0PaRGBAW_r",
+                "url": "https://www.dropbox.com/s/dpjkv1q70xqigbz/sitepress-multilingual-cms.zip?dl=1",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": ">=1.4",
+                "wp-plugin/wpml-string-translation": "*",
+                "wp-plugin/wpml-translation-management": "*"
+            },
+            "type": "wordpress-plugin"
+        },
+        {
+            "name": "wp-plugin/wpml-string-translation",
+            "version": "2.7.1",
+            "dist": {
+                "type": "zip",
+                "url": "https://www.dropbox.com/s/romdfynhdd0t33g/wpml-string-translation-2.7.1.zip?dl=1",
                 "reference": null,
                 "shasum": null
             },
             "require": {
                 "composer/installers": ">=1.4"
             },
+            "type": "wordpress-plugin"
+        },
+        {
+            "name": "wp-plugin/wpml-translation-management",
+            "version": "2.5.0",
+            "dist": {
+                "type": "zip",
+                "url": "https://www.dropbox.com/s/w7g38fj3trd55jk/wpml-translation-management-2.5.0.zip?dl=1",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": ">=1.4"
+            },
+            "type": "wordpress-plugin"
+        },
+        {
+            "name": "wp-theme/travelo",
+            "version": "5.4.8",
+            "dist": {
+                "type": "zip",
+                "url": "https://www.dropbox.com/s/prdeozosfafq83k/Travelo.zip?dl=1",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": ">=1.4",
+                "wp-plugin/js_composer": ">=5.5.4",
+                "wp-plugin/revslider": ">=5.4.8",
+                "wpackagist-plugin/contact-form-7": "*",
+                "wpackagist-plugin/mailchimp-for-wp": "*"
+            },
             "type": "wordpress-theme"
         },
         {
+            "name": "wpackagist-plugin/all-in-one-schemaorg-rich-snippets",
+            "version": "1.5.4",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/all-in-one-schemaorg-rich-snippets/",
+                "reference": "tags/1.5.4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/all-in-one-schemaorg-rich-snippets.1.5.4.zip",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/all-in-one-schemaorg-rich-snippets/"
+        },
+        {
             "name": "wpackagist-plugin/contact-form-7",
-            "version": "dev-trunk",
+            "version": "5.0.4",
             "source": {
                 "type": "svn",
                 "url": "https://plugins.svn.wordpress.org/contact-form-7/",
-                "reference": "trunk"
+                "reference": "tags/5.0.4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/plugin/contact-form-7.zip?timestamp=1538381417",
+                "url": "https://downloads.wordpress.org/plugin/contact-form-7.5.0.4.zip",
                 "reference": null,
                 "shasum": null
             },
@@ -1054,20 +1122,39 @@
                 "composer/installers": "~1.0"
             },
             "type": "wordpress-plugin",
-            "homepage": "https://wordpress.org/plugins/contact-form-7/",
-            "time": "2018-10-01T08:10:17+00:00"
+            "homepage": "https://wordpress.org/plugins/contact-form-7/"
+        },
+        {
+            "name": "wpackagist-plugin/kadence-woocommerce-email-designer",
+            "version": "1.0.6",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/kadence-woocommerce-email-designer/",
+                "reference": "trunk"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/kadence-woocommerce-email-designer.zip?timestamp=1540445948",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/kadence-woocommerce-email-designer/"
         },
         {
             "name": "wpackagist-plugin/mailchimp-for-wp",
-            "version": "dev-trunk",
+            "version": "4.2.5",
             "source": {
                 "type": "svn",
                 "url": "https://plugins.svn.wordpress.org/mailchimp-for-wp/",
-                "reference": "trunk"
+                "reference": "tags/4.2.5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/plugin/mailchimp-for-wp.zip?timestamp=1536654969",
+                "url": "https://downloads.wordpress.org/plugin/mailchimp-for-wp.4.2.5.zip",
                 "reference": null,
                 "shasum": null
             },
@@ -1075,8 +1162,87 @@
                 "composer/installers": "~1.0"
             },
             "type": "wordpress-plugin",
-            "homepage": "https://wordpress.org/plugins/mailchimp-for-wp/",
-            "time": "2018-09-11T08:36:09+00:00"
+            "homepage": "https://wordpress.org/plugins/mailchimp-for-wp/"
+        },
+        {
+            "name": "wpackagist-plugin/ultimate-faqs",
+            "version": "1.8.8",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/ultimate-faqs/",
+                "reference": "tags/1.8.8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/ultimate-faqs.1.8.8.zip",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/ultimate-faqs/"
+        },
+        {
+            "name": "wpackagist-plugin/woocommerce",
+            "version": "3.5.0",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/woocommerce/",
+                "reference": "tags/3.5.0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/woocommerce.3.5.0.zip",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/woocommerce/"
+        },
+        {
+            "name": "wpackagist-plugin/woocommerce-multilingual",
+            "version": "4.3.7",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/woocommerce-multilingual/",
+                "reference": "tags/4.3.7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/woocommerce-multilingual.4.3.7.zip",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/woocommerce-multilingual/"
+        },
+        {
+            "name": "wpackagist-plugin/wp-super-cache",
+            "version": "1.6.4",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/wp-super-cache/",
+                "reference": "tags/1.6.4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/wp-super-cache.1.6.4.zip",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/wp-super-cache/"
         }
     ],
     "packages-dev": [
@@ -1114,12 +1280,14 @@
                 "doctrine/mongodb-odm-bundle": ">=2,<3.0.1",
                 "doctrine/orm": ">=2,<2.4.8|>=2.5,<2.5.1",
                 "dompdf/dompdf": ">=0.6,<0.6.2",
-                "drupal/core": ">=7,<7.59|>=8,<8.4.8|>=8.5,<8.5.3",
-                "drupal/drupal": ">=7,<7.59|>=8,<8.4.8|>=8.5,<8.5.3",
+                "drupal/core": ">=7,<7.60|>=8,<8.5.8|>=8.6,<8.6.2",
+                "drupal/drupal": ">=7,<7.60|>=8,<8.5.8|>=8.6,<8.6.2",
                 "erusev/parsedown": "<1.7",
                 "ezsystems/ezpublish-legacy": ">=5.3,<5.3.12.3|>=5.4,<5.4.11.3|>=2017.8,<2017.8.1.1|>=2017.12,<2017.12.2.1",
                 "ezyang/htmlpurifier": "<4.1.1",
                 "firebase/php-jwt": "<2",
+                "fooman/tcpdf": "<6.2.22",
+                "fossar/tcpdf-parser": "<6.2.22",
                 "friendsofsymfony/rest-bundle": ">=1.2,<1.2.2",
                 "friendsofsymfony/user-bundle": ">=1.2,<1.3.5",
                 "fuel/core": "<1.8.1",
@@ -1136,11 +1304,12 @@
                 "jsmitty12/phpwhois": "<5.1",
                 "kazist/phpwhois": "<=4.2.6",
                 "kreait/firebase-php": ">=3.2,<3.8.1",
+                "la-haute-societe/tcpdf": "<6.2.22",
                 "laravel/framework": ">=4,<4.0.99|>=4.1,<=4.1.31|>=4.2,<=4.2.22|>=5,<=5.0.35|>=5.1,<=5.1.46|>=5.2,<=5.2.45|>=5.3,<=5.3.31|>=5.4,<=5.4.36|>=5.5,<5.5.42|>=5.6,<5.6.30",
                 "laravel/socialite": ">=1,<1.0.99|>=2,<2.0.10",
                 "magento/magento1ce": "<1.9.3.9",
                 "magento/magento1ee": ">=1.9,<1.14.3.2",
-                "magento/product-community-edition": ">=2,<2.2.5",
+                "magento/product-community-edition": ">=2,<2.2.6",
                 "monolog/monolog": ">=1.8,<1.12",
                 "namshi/jose": "<2.2",
                 "onelogin/php-saml": "<2.10.4",
@@ -1174,6 +1343,7 @@
                 "slim/slim": "<2.6",
                 "smarty/smarty": "<3.1.33",
                 "socalnick/scn-social-auth": "<1.15.2",
+                "spoonity/tcpdf": "<6.2.22",
                 "squizlabs/php_codesniffer": ">=1,<2.8.1|>=3,<3.0.1",
                 "stormpath/sdk": ">=0,<9.9.99",
                 "swiftmailer/swiftmailer": ">=4,<5.4.5",
@@ -1198,6 +1368,7 @@
                 "symfony/validator": ">=2,<2.0.24|>=2.1,<2.1.12|>=2.2,<2.2.5|>=2.3,<2.3.3",
                 "symfony/web-profiler-bundle": ">=2,<2.3.19|>=2.4,<2.4.9|>=2.5,<2.5.4",
                 "symfony/yaml": ">=2,<2.0.22|>=2.1,<2.1.7",
+                "tecnickcom/tcpdf": "<6.2.22",
                 "thelia/backoffice-default-template": ">=2.1,<2.1.2",
                 "thelia/thelia": ">=2.1,<2.1.2|>=2.1.0-beta1,<2.1.3",
                 "theonedemon/phpwhois": "<=4.2.5",
@@ -1208,6 +1379,7 @@
                 "typo3/cms-core": ">=8,<8.7.17|>=9,<9.3.2",
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5",
                 "typo3/neos": ">=1.1,<1.1.3|>=1.2,<1.2.13|>=2,<2.0.4",
+                "wallabag/tcpdf": "<6.2.22",
                 "willdurand/js-translation-bundle": "<2.1.1",
                 "yiisoft/yii": ">=1.1.14,<1.1.15",
                 "yiisoft/yii2": "<2.0.15",
@@ -1255,7 +1427,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-10-05T18:14:02+00:00"
+            "time": "2018-10-21T18:01:48+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -1312,8 +1484,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "wpackagist-plugin/contact-form-7": 20,
-        "wpackagist-plugin/mailchimp-for-wp": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": false,
