@@ -9,6 +9,7 @@ web/app/uploads/*
 
 # Themes
 web/app/themes/*
+!web/app/themes/visa4
 !web/app/themes/.gitkeep
 
 # WordPress
@@ -21,4 +22,7 @@ web/.htaccess
 !.env.example
 
 # Composer
-/vendor
+vendor/
+
+# IDE
+.idea/
