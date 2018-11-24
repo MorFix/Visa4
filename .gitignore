@@ -2,6 +2,7 @@
 web/app/plugins/*
 web/app/languages/*
 !web/app/plugins/.gitkeep
+web/app/wp-cache-config.php
 web/app/mu-plugins/*/
 web/app/upgrade
 web/app/uploads/*
