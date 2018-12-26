@@ -1,0 +1,63 @@
+<?php
+/**
+ * Spain states
+ */
+
+global $states;
+
+defined( 'ABSPATH' ) || exit;
+
+$states['ES'] = array(
+	'C'  => __( 'A Coru&ntilde;a' ),
+	'VI' => __( 'Araba/&Aacute;lava' ),
+	'AB' => __( 'Albacete' ),
+	'A'  => __( 'Alicante' ),
+	'AL' => __( 'Almer&iacute;a' ),
+	'O'  => __( 'Asturias' ),
+	'AV' => __( '&Aacute;vila' ),
+	'BA' => __( 'Badajoz' ),
+	'PM' => __( 'Baleares' ),
+	'B'  => __( 'Barcelona' ),
+	'BU' => __( 'Burgos' ),
+	'CC' => __( 'C&aacute;ceres' ),
+	'CA' => __( 'C&aacute;diz' ),
+	'S'  => __( 'Cantabria' ),
+	'CS' => __( 'Castell&oacute;n' ),
+	'CE' => __( 'Ceuta' ),
+	'CR' => __( 'Ciudad Real' ),
+	'CO' => __( 'C&oacute;rdoba' ),
+	'CU' => __( 'Cuenca' ),
+	'GI' => __( 'Girona' ),
+	'GR' => __( 'Granada' ),
+	'GU' => __( 'Guadalajara' ),
+	'SS' => __( 'Gipuzkoa' ),
+	'H'  => __( 'Huelva' ),
+	'HU' => __( 'Huesca' ),
+	'J'  => __( 'Ja&eacute;n' ),
+	'LO' => __( 'La Rioja' ),
+	'GC' => __( 'Las Palmas' ),
+	'LE' => __( 'Le&oacute;n' ),
+	'L'  => __( 'Lleida' ),
+	'LU' => __( 'Lugo' ),
+	'M'  => __( 'Madrid' ),
+	'MA' => __( 'M&aacute;laga' ),
+	'ML' => __( 'Melilla' ),
+	'MU' => __( 'Murcia' ),
+	'NA' => __( 'Navarra' ),
+	'OR' => __( 'Ourense' ),
+	'P'  => __( 'Palencia' ),
+	'PO' => __( 'Pontevedra' ),
+	'SA' => __( 'Salamanca' ),
+	'TF' => __( 'Santa Cruz de Tenerife' ),
+	'SG' => __( 'Segovia' ),
+	'SE' => __( 'Sevilla' ),
+	'SO' => __( 'Soria' ),
+	'T'  => __( 'Tarragona' ),
+	'TE' => __( 'Teruel' ),
+	'TO' => __( 'Toledo' ),
+	'V'  => __( 'Valencia' ),
+	'VA' => __( 'Valladolid' ),
+	'BI' => __( 'Bizkaia' ),
+	'ZA' => __( 'Zamora' ),
+	'Z'  => __( 'Zaragoza' ),
+);
