@@ -130,6 +130,18 @@
           "wp-plugin/wpml-string-translation": "*"
         }
       }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "wp-plugin/formcraft",
+        "version": "3.7.1",
+        "type": "wordpress-plugin",
+        "dist": {
+          "type": "zip",
+          "url": "https://www.dropbox.com/s/3ad6v24hvzqr8z1/formcraft3.zip?dl=1"
+        }
+      }
     }
   ],
   "require": {
@@ -142,6 +154,7 @@
     "roots/wp-config": "1.0.0",
 	"wp-theme/travelo": "*",
     "wp-plugin/wpml": "*",
+    "wp-plugin/formcraft":  "*",
     "koodimonni-language/ar": "*",
     "koodimonni-language/he_il": "*",
     "wpackagist-plugin/woocommerce": "*",
@@ -174,6 +187,9 @@
     ],
     "test": [
       "phpcs"
+    ],
+    "post-update-cmd": [
+      "cd ./web/app/plugins/formcraft & npm install"
     ]
   }
 }
