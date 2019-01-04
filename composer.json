@@ -54,7 +54,7 @@
       "type": "package",
       "package": {
         "name": "wp-plugin/js_composer",
-        "version": "5.5.4",
+        "version": "5.6",
         "type": "wordpress-plugin",
         "dist": {
           "type": "zip",
@@ -142,6 +142,18 @@
           "url": "https://www.dropbox.com/s/3ad6v24hvzqr8z1/formcraft3.zip?dl=1"
         }
       }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "wp-plugin/wprocket",
+        "version": "3.2.3.1",
+        "type": "wordpress-plugin",
+        "dist": {
+          "type": "zip",
+          "url": "https://www.dropbox.com/s/bdne4jnghvr3vaa/wp-rocket_3.2.3.1.zip?dl=1"
+        }
+      }
     }
   ],
   "require": {
@@ -155,13 +167,13 @@
 	"wp-theme/travelo": "*",
     "wp-plugin/wpml": "*",
     "wp-plugin/formcraft":  "*",
+    "wp-plugin/wprocket":  "*",
     "koodimonni-language/ar": "*",
     "koodimonni-language/he_il": "*",
     "wpackagist-plugin/woocommerce": "*",
     "wpackagist-plugin/all-in-one-schemaorg-rich-snippets": "*",
     "wpackagist-plugin/kadence-woocommerce-email-designer": "*",
     "wpackagist-plugin/ultimate-faqs": "*",
-    "wpackagist-plugin/wp-super-cache": "*",
     "wpackagist-plugin/woocommerce-multilingual": "*"
   },
   "require-dev": {
