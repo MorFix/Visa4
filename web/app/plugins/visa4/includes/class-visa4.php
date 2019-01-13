@@ -9,11 +9,25 @@ defined( 'ABSPATH' ) || exit;
 final class Visa4 {
 
 	/**
+	 * Visa4 version.
+	 *
+	 * @var string
+	 */
+	public $version = '1.0.0';
+
+	/**
 	 * Countries instance.
 	 *
 	 * @var VISA4_Countries
 	 */
 	public $countries = null;
+
+    /**
+     * Countries Manager
+     *
+     * @var VISA4_Countries_Manager
+     */
+    public $countries_manager = null;
 
 	/**
 	 * The single instance of the class.
@@ -50,6 +64,7 @@ final class Visa4 {
 	 */
 	private function define_constants() {
 		$this->define( 'VISA4_ABSPATH', dirname( VISA4_PLUGIN_FILE ) . '/' );
+		$this->define( 'VISA4_VERSION', $this->version );
 	}
 
 	/**
@@ -57,6 +72,8 @@ final class Visa4 {
 	 */
 	private function init_hooks() {
 		add_action( 'init', array( $this, 'init' ), 0 );
+		add_action( 'init', array( 'VISA4_Shortcodes', 'init' ) );
+		add_action( 'plugins_loaded', array( $this, 'integrations' ) );
 	}
 
 	/**
@@ -68,6 +85,7 @@ final class Visa4 {
 		$this->load_plugin_textdomain();
 
 		$this->countries = new VISA4_Countries();
+		$this->countries_manager = new VISA4_Countries_Manager();
 	}
 
 	/**
@@ -88,6 +106,25 @@ final class Visa4 {
 	}
 
 	/**
+	 * What type of request is this?
+	 *
+	 * @param  string $type admin, ajax, cron or frontend.
+	 * @return bool
+	 */
+	private function is_request( $type ) {
+		switch ( $type ) {
+			case 'admin':
+				return is_admin();
+			case 'ajax':
+				return defined( 'DOING_AJAX' );
+			case 'cron':
+				return defined( 'DOING_CRON' );
+			case 'frontend':
+				return ( ! is_admin() || defined( 'DOING_AJAX' ) ) && ! defined( 'DOING_CRON' ) && ! defined( 'REST_REQUEST' );
+		}
+	}
+
+	/**
 	 * Include required core files used in admin and on the frontend.
 	 */
 	private function includes() {
@@ -95,13 +132,35 @@ final class Visa4 {
 		include_once VISA4_ABSPATH . 'includes/visa4-formatting-functions.php';
 
 		include_once VISA4_ABSPATH . 'includes/class-visa4-ajax.php';
-		include_once VISA4_ABSPATH . 'includes/class-visa4-frontend-scripts.php';
 		include_once VISA4_ABSPATH . 'includes/class-visa4-countries.php';
+		include_once VISA4_ABSPATH . 'includes/class-visa4-shortcodes.php';
 
-		if ( is_admin() ) {
+		if ( $this->is_request( 'admin' ) ) {
 			include_once VISA4_ABSPATH . 'includes/admin/class-visa4-admin.php';
 		}
+
+		if ( $this->is_request( 'frontend' ) ) {
+			include_once VISA4_ABSPATH . 'includes/class-visa4-frontend-scripts.php';
+            include_once VISA4_ABSPATH . 'includes/class-visa4-form-handler.php';
+		}
 	}
+
+    /**
+     * Include integrations with other plugins.
+     */
+    public static function integrations() {
+        // FormCraft 3 Integration
+        if ( function_exists( 'register_formcraft_addon' ) ) {
+            include_once VISA4_ABSPATH . 'includes/integrations/class-visa4-formcraft-integration.php';
+        }
+
+        // WooCommerce Integration
+        if ( function_exists( 'WC' ) ) {
+            include_once VISA4_ABSPATH . 'includes/integrations/class-visa4-woocommerce-integration.php';
+        }
+
+        include_once VISA4_ABSPATH . 'includes/class-visa4-countries-manager.php';
+    }
 
 	/**
 	 * Define constant if not already set.
@@ -122,6 +181,15 @@ final class Visa4 {
 	 */
 	public function ajax_url() {
 		return admin_url( 'admin-ajax.php', 'relative' );
+	}
+
+	/**
+	 * Get the plugin url.
+	 *
+	 * @return string
+	 */
+	public function plugin_url() {
+		return untrailingslashit( plugins_url( '/', VISA4_PLUGIN_FILE ) );
 	}
 
 	/**

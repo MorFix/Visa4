@@ -1,6 +1,8 @@
 <?php 
 /**
 * Footer
+ *
+ * Copied from Travelo theme
  */
 global $trav_options, $logo_url;
 $footer_skin = empty( $trav_options['footer_skin'] )?'style-def':$trav_options['footer_skin'];

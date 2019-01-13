@@ -144,10 +144,4 @@ class VISA4_Countries {
 			}
 		}
 	}
-
-	public function get_countries_with_visa_setting() {
-		return array(
-			'IL' => 'Israel'
-		);
-	}
 }

@@ -18,18 +18,10 @@ class VISA4_Admin {
 	 * Include any classes we need within admin.
 	 */
 	public static function includes() {
+		include_once dirname( __FILE__ ) . '/class-visa4-admin-assets.php';
 		include_once dirname( __FILE__ ) . '/class-visa4-admin-notices.php';
 		include_once dirname( __FILE__ ) . '/class-visa4-admin-menus.php';
 		include_once dirname( __FILE__ ) . '/class-visa4-admin-settings.php';
-	}
-
-	/**
-	 * Include any integration we need within admin.
-	 */
-	public static function integrations() {
-		if ( function_exists( 'register_formcraft_addon' ) ) {
-			include_once dirname( __FILE__ ) . '/class-visa4-formcraft-integration.php';
-		}
 	}
 }
 

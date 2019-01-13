@@ -51,6 +51,8 @@ class VISA4_Admin_Settings {
 
 	/**
 	* Include the settings page classes.
+    *
+    * @return VISA4_Settings_Tab[]
 	*/
 	public static function get_settings_pages() {
 	    if ( ! empty( self::$settings ) ) {
@@ -60,6 +62,7 @@ class VISA4_Admin_Settings {
 	    include_once dirname( __FILE__ ) . '/settings/class-visa4-settings-tab.php';
 
 	    self::$settings[] = include 'settings/class-visa4-settings-countries.php';
+	    self::$settings[] = include 'settings/class-visa4-settings-visual.php';
 
 	    return self::$settings;
 	}
@@ -68,11 +71,17 @@ class VISA4_Admin_Settings {
     * Save the settings.
 	*/
 	public static function save() {
-		global $current_tab;
+		check_admin_referer( 'visa4_settings' );
+        $options_to_update = array();
 
-		check_admin_referer( 'visa4-settings' );
+		foreach (self::get_settings_pages() as $page) {
+		    $options_to_update = array_merge( $options_to_update, $page->get_options_to_update( $_POST ) );
+		}
 
-		do_action( 'visa4_settings_save_' . $current_tab );
+		// Save all options in our array.
+		foreach ( $options_to_update as $name => $value ) {
+			update_option( $name, $value, 'yes');
+		}
 	}
 
 	/**
@@ -444,6 +453,21 @@ class VISA4_Admin_Settings {
 						<?php
 						break;
 
+					// Wordpress WYSIWYG
+					case 'editor':
+					    ?>
+						<tr valign="top">
+							<th scope="row" class="titledesc">
+								<label for="<?php echo esc_attr( $option['id'] ); ?>"><?php echo esc_html( $option['title'] ); ?> <?php echo $tooltip_html; // WPCS: XSS ok. ?></label>
+							</th>
+							<td class="forminp forminp-<?php echo esc_attr( sanitize_title( $option['type'] ) ); ?>">
+								<?php echo $description; // WPCS: XSS ok. ?>
+								<?php wp_editor( self::get_option( $option['id'], $option['default'] ), $option['id'], array( 'editor_height' => 500 ) ); ?>
+							</td>
+						</tr>
+						<?php
+					    break;
+
 					// Default
 					default:
 						break;
@@ -492,27 +516,22 @@ class VISA4_Admin_Settings {
 	}
 
 	/**
-	 * Save admin fields.
+	 * Get WordPress options to update
 	 *
-	 * Loops though the visa4 options array and outputs each field.
+	 * Loops though the visa4 options array and preparing each field to save.
 	 *
 	 * @param array $options Options array to output.
-	 * @param array $data    Optional. Data to use for saving. Defaults to $_POST.
+	 * @param array $data    Data to use for saving
 	 *
-	 * @return bool
+	 * @return bool|array
 	 */
-	public static function save_fields( $options, $data = null ) {
-		if ( is_null( $data ) ) {
-			$data = $_POST;
-		}
-
+	public static function get_options_to_update( $options, $data ) {
 		if ( empty( $data ) ) {
 			return false;
 		}
 
 		// Options to update will be stored here and saved later.
 		$update_options   = array();
-		$autoload_options = array();
 
 		// Loop options and get values to save.
 		foreach ( $options as $option ) {
@@ -538,6 +557,7 @@ class VISA4_Admin_Settings {
 					$value = '1' === $raw_value || 'yes' === $raw_value ? 'yes' : 'no';
 					break;
 				case 'textarea':
+				case 'editor':
 					$value = wp_kses_post( trim( $raw_value ) );
 					break;
 				case 'multiselect':
@@ -589,16 +609,9 @@ class VISA4_Admin_Settings {
 			} else {
 				$update_options[ $option_name ] = $value;
 			}
-
-			$autoload_options[ $option_name ] = isset( $option['autoload'] ) ? (bool) $option['autoload'] : true;
 		}
 
-		// Save all options in our array.
-		foreach ( $update_options as $name => $value ) {
-			update_option( $name, $value, $autoload_options[ $name ] ? 'yes' : 'no' );
-		}
-
-		return true;
+		return $update_options;
 	}
 
 	/**
@@ -623,18 +636,10 @@ class VISA4_Admin_Settings {
 	 * Handles the display of the main visa4 settings page in admin.
 	 */
 	public static function output() {
-	    wp_enqueue_script( 'woocommerce_settings', WC()->plugin_url() . '/assets/js/admin/settings' . '' . '.js', array( 'jquery', 'wp-util', 'jquery-ui-datepicker', 'jquery-ui-sortable', 'iris', 'selectWoo' ), WC()->version, true );
-
-		wp_localize_script(
-			'woocommerce_settings', 'woocommerce_settings_params', array(
-				'i18n_nav_warning' => __( 'The changes you made will be lost if you navigate away from this page.', 'woocommerce' ),
-				'i18n_moved_up'    => __( 'Item moved up', 'woocommerce' ),
-				'i18n_moved_down'  => __( 'Item moved down', 'woocommerce' ),
-			)
-		);
+	    wp_enqueue_script( 'visa4_settings', Visa4()->plugin_url() . '/assets/js/admin/settings.js', array(), Visa4()->version, true );
 
 	    // Get tabs for the settings page.
-		$tabs = apply_filters( 'visa4_settings_tabs_array', array() );
+		$tabs = self::get_settings_pages();
 
 		include dirname( __FILE__ ) . '/views/html-admin-settings.php';
 	}

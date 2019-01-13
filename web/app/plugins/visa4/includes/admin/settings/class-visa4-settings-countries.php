@@ -25,102 +25,49 @@ class VISA4_Settings_Countries extends VISA4_Settings_Tab {
 	}
 
 	/**
-	 * Get settings array.
+	 * @override
 	 *
-	 * @return array
+	 * Outputting the screen
 	 */
-	public function get_settings() {
-
-		$settings = array(
-			array(
-				'title' => __( 'Visa Mappings' ),
-				'type'  => 'title',
-				'desc'  => __( 'Use this to add or remove mappings between countries that need visa' ),
-				'id'    => 'visa_mappings',
-			),
-
-			array(
-				'title'    => __( 'Country / State' ),
-				'desc'     => __( 'The country and state or province, if any, in which your business is located.' ),
-				'id'       => 'visa4_country',
-				'default'  => 'GB',
-				'type'     => 'single_select_country',
-				'desc_tip' => true,
-			),
-
-			array(
-				'title'    => __( 'Postcode / ZIP' ),
-				'desc'     => __( 'The postal code, if any, in which your business is located.' ),
-				'id'       => 'visa4_zip',
-				'css'      => 'min-width:50px;',
-				'default'  => '',
-				'type'     => 'text',
-				'desc_tip' => true,
-			),
-
-			array(
-				'type' => 'sectionend',
-				'id'   => 'visa_mappings',
-			),
-
-			array(
-				'title' => __( 'General options' ),
-				'type'  => 'title',
-				'desc'  => '',
-				'id'    => 'general_options',
-			),
-
-			array(
-				'title'    => __( 'Selling location(s)' ),
-				'desc'     => __( 'This option lets you limit which countries you are willing to sell to.' ),
-				'id'       => 'woocommerce_allowed_countries',
-				'default'  => 'all',
-				'type'     => 'select',
-				'class'    => 'wc-enhanced-select',
-				'css'      => 'min-width: 350px;',
-				'desc_tip' => true,
-				'options'  => array(
-					'all'        => __( 'Sell to all countries' ),
-					'all_except' => __( 'Sell to all countries, except for&hellip;' ),
-					'specific'   => __( 'Sell to specific countries' ),
+	public function output() {
+		wp_localize_script(
+			'visa4-countries-settings', 'visa4CountriesSettingsParams', array(
+				'countries'                   => Visa4()->countries_manager->get_countries_connected_to_product(),
+				'default_country'    => array(
+					'term_id'     => 0,
+					'name'        => '',
+					'description' => '',
 				),
-			),
-
-			array(
-				'title'   => __( 'Sell to all countries, except for&hellip;' ),
-				'desc'    => '',
-				'id'      => 'woocommerce_all_except_countries',
-				'css'     => 'min-width: 350px;',
-				'default' => '',
-				'type'    => 'multi_select_countries',
-			),
-
-			array(
-				'title'   => __( 'Sell to specific countries' ),
-				'desc'    => '',
-				'id'      => 'woocommerce_specific_allowed_countries',
-				'css'     => 'min-width: 350px;',
-				'default' => '',
-				'type'    => 'multi_select_countries',
-			),
-
-
-			array(
-				'title'    => __( 'Enable taxes' ),
-				'desc'     => __( 'Enable tax rates and calculations' ),
-				'id'       => 'woocommerce_calc_taxes',
-				'default'  => 'no',
-				'type'     => 'checkbox',
-				'desc_tip' => __( 'Rates will be configurable and taxes will be calculated during checkout.' ),
-			),
-
-			array(
-				'type' => 'sectionend',
-				'id'   => 'general_options',
+				'strings'                   => array(
+					'unload_confirmation_msg' => __( 'Your changed data will be lost if you leave this page without saving' ),
+					'save_failed'             => __( 'Your changes were not saved. Please retry.' ),
+				),
 			)
 		);
+		wp_enqueue_script( 'visa4-countries-settings' );
 
-		return apply_filters( 'visa4_get_settings_' . $this->id, $settings );
+		// Extendable columns to show on the countries screen.
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        $visa4_countries_columns = array(
+			'visa4-destination-country' => __( 'Destination Country' ),
+			'visa4-source-countries'    => __( 'Source Countries' ),
+			'visa4-country-edit-link'   => __( 'Edit product' ),
+			'visa4-country-view-link'   => __( 'View product' ),
+		);
+
+		include_once dirname( __FILE__ ) . '/views/html-visa4-settings-countries.php';
+	}
+
+	/**
+	 * @override
+	 *
+	 * Preparing options to save
+	 *
+	 * @param $data - The POSTed data
+	 * @return array
+	 */
+	public function get_options_to_update( $data ) {
+		return [];
 	}
 }
 

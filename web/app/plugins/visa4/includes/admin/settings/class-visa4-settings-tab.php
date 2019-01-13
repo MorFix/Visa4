@@ -20,14 +20,14 @@ abstract class VISA4_Settings_Tab {
 	 *
 	 * @var string
 	 */
-	protected $id = '';
+	public $id = '';
 
 	/**
 	 * Setting tab label.
 	 *
 	 * @var string
 	 */
-	protected $label = '';
+	public $label = '';
 
 	/**
 	 * Constructor.
@@ -35,7 +35,6 @@ abstract class VISA4_Settings_Tab {
 	public function __construct() {
 		add_filter( 'visa4_settings_tabs_array', array( $this, 'add_settings_tab' ), 20 );
 		add_action( 'visa4_settings_' . $this->id, array( $this, 'output' ) );
-		add_action( 'visa4_settings_save_' . $this->id, array( $this, 'save' ) );
 	}
 
 	/**
@@ -87,11 +86,14 @@ abstract class VISA4_Settings_Tab {
 	}
 
 	/**
-	 * Save settings.
+	 * Get the WordPress options to update
+	 *
+	 * @param $data - The POSTed data
+	 * @return bool|array
 	 */
-	public function save() {
+	public function get_options_to_update( $data ) {
 		$settings = $this->get_settings();
 
-		VISA4_Admin_Settings::save_fields( $settings );
+		return VISA4_Admin_Settings::get_options_to_update( $settings, $data );
 	}
 }

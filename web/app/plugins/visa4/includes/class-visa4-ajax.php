@@ -82,7 +82,7 @@ class VISA4_AJAX {
 	public static function add_ajax_events() {
 		// VISA4_EVENT => isAlsoForUnauthorized.
 		$ajax_events = array(
-			'save_admin_settings'                          => false,
+			'save_admin_settings' => false,
 		);
 
 		foreach ( $ajax_events as $ajax_event => $isAlsoForUnauthorized ) {
@@ -105,14 +105,9 @@ class VISA4_AJAX {
 	 * Saving the admin settings
 	 */
 	public static function save_admin_settings() {
-		global $current_tab, $current_section;
-
 		if ( ! current_user_can('manage_options') ) {
 			wp_die(-1);
 		}
-
-		$current_tab     = empty( $_GET['tab'] ) ? 'general' : sanitize_title( wp_unslash( $_GET['tab'] ) );
-		$current_section = empty( $_REQUEST['section'] ) ? '' : sanitize_title( wp_unslash( $_REQUEST['section'] ) );
 
 		VISA4_Admin_Settings::save();
 	}

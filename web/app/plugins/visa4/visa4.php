@@ -15,7 +15,7 @@ if ( ! defined( 'VISA4_PLUGIN_FILE' ) ) {
 	define( 'VISA4_PLUGIN_FILE', __FILE__ );
 }
 
-// Include the main WooCommerce class.
+// Include the main Visa4 class.
 if ( ! class_exists( 'Visa4' ) ) {
 	include_once dirname( __FILE__ ) . '/includes/class-visa4.php';
 }
