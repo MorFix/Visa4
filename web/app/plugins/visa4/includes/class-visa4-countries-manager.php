@@ -34,6 +34,7 @@ class VISA4_Countries_Manager {
             $products[] = $product;
 
         endwhile;
+        wp_reset_query();
 
         return $products;
     }
@@ -94,5 +95,32 @@ class VISA4_Countries_Manager {
      */
     public function get_countries_connected_to_form() {
         return VISA4_FormCraft_Integration::get_countries_connected_to_form();
+    }
+
+    /**
+     * Get a FormCraft form ID that is connected to a requested country code
+     *
+     * @param $country_code - The desired country code
+     * @return int - The form Id or null
+     */
+    public function get_form_id( $country_code ) {
+        return VISA4_FormCraft_Integration::get_form_id( $country_code );
+    }
+
+    /**
+     * Using WooCommerce to get the user's current country
+     *
+     * @return string - The Visa4 country code
+     */
+    public function get_current_country_code()
+    {
+        $countries = Visa4()->countries->get_countries();
+        $country_code = VISA4_WooCommerce_Integration::get_current_country_code();
+
+        if ( !empty ( $countries[$country_code] ) ) {
+            return $country_code;
+        }
+
+        return '';
     }
 }

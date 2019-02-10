@@ -174,7 +174,8 @@
     "wpackagist-plugin/all-in-one-schemaorg-rich-snippets": "*",
     "wpackagist-plugin/kadence-woocommerce-email-designer": "*",
     "wpackagist-plugin/ultimate-faqs": "*",
-    "wpackagist-plugin/woocommerce-multilingual": "*"
+    "wpackagist-plugin/woocommerce-multilingual": "*",
+    "wpackagist-plugin/all-in-one-wp-migration": "*"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "^3.0.2",

@@ -45,12 +45,12 @@ class VISA4_FormCraft_Integration {
     public static function get_countries_connected_to_form() {
         global $wpdb, $fc_forms_table;
 
-        $form_entries = $wpdb->get_results( "SELECT id, addons FROM $fc_forms_table", ARRAY_A );
+        $forms = $wpdb->get_results( "SELECT id, addons FROM $fc_forms_table", ARRAY_A );
         $visa4_countries = Visa4()->countries->get_countries();
 
         $countries = array();
-        foreach ($form_entries as $form_entry) {
-            $addons = json_decode( stripcslashes( $form_entry[ 'addons' ] ) , 1 );
+        foreach ($forms as $form) {
+            $addons = json_decode( stripcslashes( $form[ 'addons' ] ) , 1 );
 
             if ( self::is_addons_contains_valid_country( $addons ) ) {
                 $countries[ $addons[ self::VISA4_FC_ADDON ][ self::VISA4_FC_ADDON_COUNTRY_KEY ] ] =
@@ -91,6 +91,29 @@ class VISA4_FormCraft_Integration {
         }
 
         return $countries;
+    }
+
+    /**
+     * Get a FormCraft form ID that is connected to a requested country code
+     *
+     * @param $country_code - The desired country code
+     * @return int - The form Id or null
+     */
+    public static function get_form_id( $country_code ) {
+        global $wpdb, $fc_forms_table;
+
+        $forms = $wpdb->get_results( "SELECT id, addons FROM $fc_forms_table", ARRAY_A );
+
+        foreach ($forms as $form) {
+            $addons = json_decode( stripcslashes( $form[ 'addons' ] ) , 1 );
+
+            if ( !empty ( $addons[ self::VISA4_FC_ADDON ] ) &&
+                 $addons[ self::VISA4_FC_ADDON ][ self::VISA4_FC_ADDON_COUNTRY_KEY ] === $country_code ) {
+                return $form['id'];
+            }
+        }
+
+        return null;
     }
 
     /**

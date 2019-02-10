@@ -122,6 +122,8 @@ final class Visa4 {
 			case 'frontend':
 				return ( ! is_admin() || defined( 'DOING_AJAX' ) ) && ! defined( 'DOING_CRON' ) && ! defined( 'REST_REQUEST' );
 		}
+
+		return false;
 	}
 
 	/**
@@ -157,6 +159,11 @@ final class Visa4 {
         // WooCommerce Integration
         if ( function_exists( 'WC' ) ) {
             include_once VISA4_ABSPATH . 'includes/integrations/class-visa4-woocommerce-integration.php';
+        }
+
+        // WPBakery (JS Composer) Integration
+        if ( class_exists( 'Vc_Manager' ) ) {
+            include_once VISA4_ABSPATH . 'includes/integrations/class-visa4-jscomposer-integration.php';
         }
 
         include_once VISA4_ABSPATH . 'includes/class-visa4-countries-manager.php';

@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 class VISA4_AJAX {
-	private static $VISA4_AJAX_SLUG = 'visa4ajax';
+	const VISA4_AJAX_SLUG = 'visa4ajax';
 
 	/**
 	 * Hook in ajax handlers.
@@ -26,14 +26,14 @@ class VISA4_AJAX {
 	 * @return string
 	 */
 	public static function get_endpoint( $request = '' ) {
-		return esc_url_raw( add_query_arg( self::$VISA4_AJAX_SLUG, $request, home_url( '/', 'relative' ) ) );
+		return esc_url_raw( add_query_arg( self::VISA4_AJAX_SLUG, $request, home_url( '/', 'relative' ) ) );
 	}
 
 	/**
 	 * Set Visa4 AJAX constant and headers.
 	 */
 	public static function define_ajax() {
-		if ( ! empty( $_GET[self::$VISA4_AJAX_SLUG] ) ) {
+		if ( ! empty( $_GET[self::VISA4_AJAX_SLUG] ) ) {
 			visa4_maybe_define_constant( 'DOING_AJAX', true );
 			visa4_maybe_define_constant( 'VISA4_DOING_AJAX', true );
 
@@ -50,16 +50,16 @@ class VISA4_AJAX {
 	public static function do_visa4_ajax() {
 		global $wp_query;
 
-		if ( ! empty( $_GET[self::$VISA4_AJAX_SLUG] ) ) {
-			$wp_query->set( self::$VISA4_AJAX_SLUG, sanitize_text_field( wp_unslash( $_GET[self::$VISA4_AJAX_SLUG] ) ) );
+		if ( ! empty( $_GET[self::VISA4_AJAX_SLUG] ) ) {
+			$wp_query->set( self::VISA4_AJAX_SLUG, sanitize_text_field( wp_unslash( $_GET[self::VISA4_AJAX_SLUG] ) ) );
 		}
 
-		$action = $wp_query->get( self::$VISA4_AJAX_SLUG );
+		$action = $wp_query->get( self::VISA4_AJAX_SLUG );
 
 		if ( $action ) {
 			self::visa4_ajax_headers();
 			$action = sanitize_text_field( $action );
-			do_action( self::$VISA4_AJAX_SLUG . '_' . $action );
+			do_action( self::VISA4_AJAX_SLUG . '_' . $action );
 			wp_die();
 		}
 	}
@@ -92,7 +92,7 @@ class VISA4_AJAX {
 				add_action( 'wp_ajax_nopriv_visa4_' . $ajax_event, array( __CLASS__, $ajax_event ) );
 
 				// VISA4 AJAX can be used for frontend ajax requests.
-				add_action( self::$VISA4_AJAX_SLUG . '_' . $ajax_event, array( __CLASS__, $ajax_event ) );
+				add_action( self::VISA4_AJAX_SLUG . '_' . $ajax_event, array( __CLASS__, $ajax_event ) );
 			}
 		}
 	}

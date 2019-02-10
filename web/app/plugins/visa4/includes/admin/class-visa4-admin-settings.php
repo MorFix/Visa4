@@ -368,7 +368,7 @@ class VISA4_Admin_Settings {
 						break;
 
 					// Single page selects.
-					/*case 'single_select_page':
+					case 'single_select_page':
 						$args = array(
 							'name'             => $option['id'],
 							'id'               => $option['id'],
@@ -391,11 +391,11 @@ class VISA4_Admin_Settings {
 								<label><?php echo esc_html( $option['title'] ); ?> <?php echo $tooltip_html; // WPCS: XSS ok. ?></label>
 							</th>
 							<td class="forminp">
-								<?php echo str_replace( ' id=', " data-placeholder='" . esc_attr__( 'Select a page&hellip;', 'woocommerce' ) . "' style='" . $option['css'] . "' class='" . $option['class'] . "' id=", wp_dropdown_pages( $args ) ); // WPCS: XSS ok. ?> <?php echo $description; // WPCS: XSS ok. ?>
+								<?php echo str_replace( ' id=', " data-placeholder='" . esc_attr__( 'Select a page'  ) . "' style='" . $option['css'] . "' class='" . $option['class'] . "' id=", wp_dropdown_pages( $args ) ); // WPCS: XSS ok. ?> <?php echo $description; // WPCS: XSS ok. ?>
 							</td>
 						</tr>
 						<?php
-						break;*/
+						break;
 
 					// Single country selects.
 					case 'single_select_country':

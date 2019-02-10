@@ -40,34 +40,12 @@ class VISA4_Settings_Visual extends VISA4_Settings_Tab {
 			),
 
 			array(
-				'title'   => __( 'Product page slider template' ),
-				'desc'    => __( 'This is the content inside the slider in the product page' ),
-				'id'      => 'visa4_product_slider_template',
+				'title'   => __( 'Product Base page' ),
+				'desc'    => __( 'This is the page which every product (country) page relies on it\'s template' ),
+				'id'      => 'visa4_product_base_page',
 				'default' => '',
-				'type'    => 'editor',
+				'type'    => 'single_select_page',
 				'desc_tip' => true
-			),
-
-			array(
-				'title'   => __( 'Product page template' ),
-				'desc'    => __( 'This is the content inside a product page' ),
-				'id'      => 'visa4_product_template',
-				'default' => '',
-				'type'    => 'editor',
-				'desc_tip' => true
-			),
-
-			array(
-				'title'             => __( 'Product page custom CSS' ),
-				'desc'              => __( 'A custom CSS code inside a product page' ),
-				'id'                => 'visa4_product_css',
-				'default'           => '',
-				'type'              => 'textarea',
-				'desc_tip'          => true,
-				'custom_attributes' => array(
-					'rows'  => 10,
-					'cols' => 100
-				)
 			),
 
 			array(
