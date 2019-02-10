@@ -13,6 +13,16 @@ function has_any_sidebar(array $sidebars) {
 }
 
 /**
+ * Fixing a css problem with a full-width testimonials container
+ */
+function hide_overflowing_main() {
+    $custom_css = 'div#main {overflow:hidden;}';
+
+    wp_add_inline_style( 'trav_style_custom', $custom_css );
+}
+add_action( 'wp_enqueue_scripts', 'hide_overflowing_main', 20 );
+
+/**
  * Override the meta boxes structure to add slider also in product page
  *
  * @param $metaboxes - Original meta boxes
