@@ -7,7 +7,6 @@ Map Countries
 	Save data on ajax endpoint
 	Fix deletion bug
 Documentation
-Save CreditCard
 Remove OnAjax event
 Remove Sidebar widgets
 "Visa not needed" page

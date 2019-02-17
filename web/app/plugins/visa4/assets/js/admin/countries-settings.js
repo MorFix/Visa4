@@ -139,10 +139,6 @@
                             }
                         } );
                     } );
-                    /*$tr.find( 'select' ).each( function() {
-                        var attribute = $( this ).data( 'attribute' );
-                        $( this ).find( 'option[value="' + rowData[ attribute ] + '"]' ).prop( 'selected', true );
-                    } );*/
 
                     // Make the rows function
                     $tr.find( '.view' ).show();

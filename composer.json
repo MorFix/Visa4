@@ -154,6 +154,18 @@
           "url": "https://www.dropbox.com/s/bdne4jnghvr3vaa/wp-rocket_3.2.3.1.zip?dl=1"
         }
       }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "wp-plugin/woocommerce-offline-credit-card-processing",
+        "version": "1.7.3",
+        "type": "wordpress-plugin",
+        "dist": {
+          "type": "zip",
+          "url": "https://www.dropbox.com/s/2to0tboxy0qmgx3/woocommerce-offline-credit-card-processing-1.7.3.zip?dl=1"
+        }
+      }
     }
   ],
   "require": {
@@ -168,6 +180,7 @@
     "wp-plugin/wpml": "*",
     "wp-plugin/formcraft":  "*",
     "wp-plugin/wprocket":  "*",
+    "wp-plugin/woocommerce-offline-credit-card-processing": "*",
     "koodimonni-language/ar": "*",
     "koodimonni-language/he_il": "*",
     "wpackagist-plugin/woocommerce": "*",
