@@ -1,9 +1,10 @@
-/* global shippingClassesLocalizeScript, ajaxurl */
+/* global visa4CountriesSettingsParams, wp, ajaxurl */
 ( function( $, data, wp, ajaxurl ) {
     $( function() {
         const $tbody          = $( '.visa4-countries-rows' ),
               $save_button    = $( '.visa4-countries-save' ),
               $row_template   = wp.template( 'visa4-country-row' ),
+              $source_country_template = wp.template('visa4-source-country'),
               $blank_template = wp.template( 'visa4-country-row-blank' ),
 
             // Backbone model
@@ -13,7 +14,7 @@
                     var changes = this.changes || {};
 
                     _.each( changedRows, function( row, id ) {
-                        changes[ id ] = _.extend( changes[ id ] || { term_id : id }, row );
+                        changes[ id ] = _.extend( changes[ id ] || { country_code : id }, row );
                     } );
 
                     this.changes = changes;
@@ -26,7 +27,7 @@
                             changes                 : this.changes
                         }, this.onSaveResponse, 'json' );
                     } else {
-                        country.trigger( 'saved:classes' );
+                        this.trigger( 'saved:countries' );
                     }
                 },
                 discardChanges: function( id ) {
@@ -37,16 +38,16 @@
 
                     // No changes? Disable save button.
                     if ( 0 === _.size( this.changes ) ) {
-                        shippingClassView.clearUnloadConfirmation();
+                        countryView.clearUnloadConfirmation();
                     }
                 },
                 onSaveResponse: function( response, textStatus ) {
                     if ( 'success' === textStatus ) {
                         if ( response.success ) {
-                            country.set( 'classes', response.data.shipping_classes );
-                            country.trigger( 'change:classes' );
-                            country.changes = {};
-                            country.trigger( 'saved:classes' );
+                            this.set( 'countries', response.data.countries );
+                            this.trigger( 'change:countries' );
+                            this.changes = {};
+                            this.trigger( 'saved:countries' );
                         } else if ( response.data ) {
                             window.alert( response.data );
                         } else {
@@ -60,10 +61,11 @@
             // Backbone view
             CountryView = Backbone.View.extend({
                 rowTemplate: $row_template,
+                sourceCountryTemplate: $source_country_template,
                 initialize: function() {
-                    this.listenTo( this.model, 'change:classes', this.setUnloadConfirmation );
-                    this.listenTo( this.model, 'saved:classes', this.clearUnloadConfirmation );
-                    this.listenTo( this.model, 'saved:classes', this.render );
+                    this.listenTo( this.model, 'change:countries', this.setUnloadConfirmation );
+                    this.listenTo( this.model, 'saved:countries', this.clearUnloadConfirmation );
+                    this.listenTo( this.model, 'saved:countries', this.render );
                     $tbody.on( 'change', { view: this }, this.updateModelOnChange );
                     $( window ).on( 'beforeunload', { view: this }, this.unloadConfirmation );
                     $save_button.on( 'click', { view: this }, this.onSubmit );
@@ -83,40 +85,64 @@
                     $( this.el ).unblock();
                 },
                 render: function() {
-                    var classes       = _.indexBy( this.model.get( 'classes' ), 'term_id' ),
+                    var countries       = _.indexBy( this.model.get( 'countries' ), 'country_code' ),
                         view        = this;
 
                     this.$el.empty();
                     this.unblock();
 
-                    if ( _.size( classes ) ) {
-                        // Sort classes
-                        classes = _.sortBy( classes, function( shipping_class ) {
-                            return shipping_class.name;
+                    if ( _.size( countries ) ) {
+                        // Sort countries
+                        countries = _.sortBy( countries, function( country ) {
+                            return country.name;
                         } );
 
-                        // Populate $tbody with the current classes
-                        $.each( classes, function( id, rowData ) {
+                        // Populate $tbody with the current countries
+                        $.each( countries, function( id, rowData ) {
                             view.renderRow( rowData );
                         } );
                     } else {
                         view.$el.append( $blank_template );
                     }
                 },
+                createRowTemplate: function( rowData ) {
+                    const row = $( this.rowTemplate( rowData ) );
+                    const sourceCountries = row.find('.source_countries');
+
+                    rowData.source_countries.forEach(function( country ) {
+                        const elem = $( document.createElement('div') );
+                        elem.html( this.sourceCountryTemplate( country ) );
+
+                        sourceCountries.append( elem );
+                    });
+
+                    return row;
+                },
                 renderRow: function( rowData ) {
-                    var view = this;
-                    view.$el.append( view.rowTemplate( rowData ) );
+                    const view = this;
+                    const row = this.createRowTemplate( rowData );
+
+                    view.$el.append( row );
                     view.initRow( rowData );
                 },
                 initRow: function( rowData ) {
                     var view = this;
-                    var $tr = view.$el.find( 'tr[data-id="' + rowData.term_id + '"]');
+                    var $tr = view.$el.find( 'tr[data-id="' + rowData.country_code + '"]');
 
-                    // Support select boxes
+                    // Support multi select boxes
                     $tr.find( 'select' ).each( function() {
+                        const attribute = $( this ).data( 'attribute' );
+                        $( this ).find( 'option' ).each( function () {
+                            const option = $( this );
+                            if ( rowData[attribute].includes( option.val() ) ) {
+                                option.prop( 'selected', true );
+                            }
+                        } );
+                    } );
+                    /*$tr.find( 'select' ).each( function() {
                         var attribute = $( this ).data( 'attribute' );
                         $( this ).find( 'option[value="' + rowData[ attribute ] + '"]' ).prop( 'selected', true );
-                    } );
+                    } );*/
 
                     // Make the rows function
                     $tr.find( '.view' ).show();
@@ -142,41 +168,40 @@
 
                     var view    = event.data.view,
                         model   = view.model,
-                        classes   = _.indexBy( model.get( 'classes' ), 'term_id' ),
+                        countries   = _.indexBy( model.get( 'countries' ), 'country_code' ),
                         changes = {},
-                        size    = _.size( classes ),
+                        size    = _.size( countries ),
                         newRow  = Object.assign( {}, data.default_country, {
-                            term_id: 'new-' + size + '-' + Date.now(),
+                            country_code: 'new-' + size + '-' + Date.now(),
                             editing: true,
                             newRow : true
                         } );
 
-                    changes[ newRow.term_id ] = newRow;
+                    changes[ newRow.country_code ] = newRow;
 
                     model.logChanges( changes );
                     view.renderRow( newRow );
-                    $( '.wc-shipping-classes-blank-state' ).remove();
                 },
                 onEditRow: function( event ) {
                     event.preventDefault();
                     $( this ).closest('tr').addClass('editing');
                     $( this ).closest('tr').find('.view').hide();
                     $( this ).closest('tr').find('.edit').show();
-                    event.data.view.model.trigger( 'change:classes' );
+                    event.data.view.model.trigger( 'change:countries' );
                 },
                 onDeleteRow: function( event ) {
                     var view    = event.data.view,
                         model   = view.model,
-                        classes = _.indexBy( model.get( 'classes' ), 'term_id' ),
+                        countries = _.indexBy( model.get( 'countries' ), 'country_code' ),
                         changes = {},
-                        term_id = $( this ).closest('tr').data('id');
+                        country_code = $( this ).closest('tr').data('id');
 
                     event.preventDefault();
 
-                    if ( classes[ term_id ] ) {
-                        delete classes[ term_id ];
-                        changes[ term_id ] = _.extend( changes[ term_id ] || {}, { deleted : 'deleted' } );
-                        model.set( 'classes', classes );
+                    if ( countries[ country_code ] ) {
+                        delete countries[ country_code ];
+                        changes[ country_code ] = _.extend( changes[ country_code ] || {}, { deleted : 'deleted' } );
+                        model.set( 'countries', countries );
                         model.logChanges( changes );
                     }
 
@@ -186,16 +211,16 @@
                     var view    = event.data.view,
                         model   = view.model,
                         row     = $( this ).closest('tr'),
-                        term_id = $( this ).closest('tr').data('id'),
-                        classes = _.indexBy( model.get( 'classes' ), 'term_id' );
+                        country_code = $( this ).closest('tr').data('id'),
+                        countries = _.indexBy( model.get( 'countries' ), 'country_code' );
 
                     event.preventDefault();
-                    model.discardChanges( term_id );
+                    model.discardChanges( country_code );
 
-                    if ( classes[ term_id ] ) {
-                        classes[ term_id ].editing = false;
-                        row.after( view.rowTemplate( classes[ term_id ] ) );
-                        view.initRow( classes[ term_id ] );
+                    if ( countries[ country_code ] ) {
+                        countries[ country_code ].editing = false;
+                        row.after( view.createRowTemplate( countries[ country_code ] ) );
+                        view.initRow( countries[ country_code ] );
                     }
 
                     row.remove();
@@ -218,30 +243,30 @@
                 updateModelOnChange: function( event ) {
                     var model     = event.data.view.model,
                         $target   = $( event.target ),
-                        term_id   = $target.closest( 'tr' ).data( 'id' ),
+                        country_code   = $target.closest( 'tr' ).data( 'id' ),
                         attribute = $target.data( 'attribute' ),
                         value     = $target.val(),
-                        classes   = _.indexBy( model.get( 'classes' ), 'term_id' ),
+                        countries   = _.indexBy( model.get( 'countries' ), 'country_code' ),
                         changes = {};
 
-                    if ( ! classes[ term_id ] || classes[ term_id ][ attribute ] !== value ) {
-                        changes[ term_id ] = {};
-                        changes[ term_id ][ attribute ] = value;
+                    if ( ! countries[ country_code ] || countries[ country_code ][ attribute ] !== value ) {
+                        changes[ country_code ] = {};
+                        changes[ country_code ][ attribute ] = value;
                     }
 
                     model.logChanges( changes );
                 }
             } ),
 
-            country = new Country({
+            countryModel = new Country({
                 countries: data.countries
             } ),
 
             countryView = new CountryView({
-                model:    country,
+                model:    countryModel,
                 el:       $tbody
             } );
 
         countryView.render();
     });
-})( jQuery, visa4CountriesSettingsParams, {}, ajaxurl );
+})( jQuery, visa4CountriesSettingsParams, wp, ajaxurl );

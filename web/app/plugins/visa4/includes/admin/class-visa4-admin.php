@@ -22,6 +22,8 @@ class VISA4_Admin {
 		include_once dirname( __FILE__ ) . '/class-visa4-admin-notices.php';
 		include_once dirname( __FILE__ ) . '/class-visa4-admin-menus.php';
 		include_once dirname( __FILE__ ) . '/class-visa4-admin-settings.php';
+
+        include_once dirname( __FILE__ ) . '/class-visa4-page-walker.php';
 	}
 }
 

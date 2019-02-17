@@ -1,5 +1,15 @@
 Map Countries
+	Hide View on Creation
+	Hide Edit on Creation
+	Let select form?
+	Let select new country
+	Let resize selector
+	Save data on ajax endpoint
+	Fix deletion bug
+Documentation
 Save CreditCard
+Remove OnAjax event
+Remove Sidebar widgets
 "Visa not needed" page
 WooCommerce Templates
 

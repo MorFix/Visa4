@@ -379,6 +379,7 @@ class VISA4_Admin_Settings {
 							'echo'             => false,
 							'selected'         => absint( self::get_option( $option['id'], $option['default'] ) ),
 							'post_status'      => 'publish,private,draft',
+							'attach_editlink'  => true
 						);
 
 						if ( isset( $option['args'] ) ) {
@@ -386,12 +387,16 @@ class VISA4_Admin_Settings {
 						}
 
 						?>
-						<tr valign="top" class="single_select_page">
+						<tr valign="top" class="single_select_page visa4_select_page">
 							<th scope="row" class="titledesc">
 								<label><?php echo esc_html( $option['title'] ); ?> <?php echo $tooltip_html; // WPCS: XSS ok. ?></label>
 							</th>
 							<td class="forminp">
-								<?php echo str_replace( ' id=', " data-placeholder='" . esc_attr__( 'Select a page'  ) . "' style='" . $option['css'] . "' class='" . $option['class'] . "' id=", wp_dropdown_pages( $args ) ); // WPCS: XSS ok. ?> <?php echo $description; // WPCS: XSS ok. ?>
+								<?php echo str_replace( ' id=', " data-placeholder='" . esc_attr__( 'Select a page'  ) . "' style='" . $option['css'] . "' class='" . $option['class'] . "' id=", self::visa4_dropdown_pages( $args ) ); // WPCS: XSS ok. ?>
+                                <?php echo $description; // WPCS: XSS ok. ?>
+                                <div class="visa4_edit_pgae">
+							        <a href="#" target="_blank">Edit this page</a>
+							    </div>
 							</td>
 						</tr>
 						<?php
@@ -475,6 +480,71 @@ class VISA4_Admin_Settings {
 			}
 		}
 
+	/**
+    * Custom dropdown of pages
+    *
+    * @param $args
+    * @return mixed
+    */
+	private static function visa4_dropdown_pages( $args ) {
+	   $defaults = array(
+            'depth' => 0, 'child_of' => 0,
+            'selected' => 0, 'echo' => 1,
+            'name' => 'page_id', 'id' => '',
+            'class' => '',
+            'show_option_none' => '', 'show_option_no_change' => '',
+            'option_none_value' => '',
+            'value_field' => 'ID',
+        );
+
+        $r = wp_parse_args( $args, $defaults );
+
+        $pages = get_pages( $r );
+        $output = '';
+        // Back-compat with old system where both id and name were based on $name argument
+        if ( empty( $r['id'] ) ) {
+            $r['id'] = $r['name'];
+        }
+
+        if ( ! empty( $pages ) ) {
+            $class = '';
+            if ( ! empty( $r['class'] ) ) {
+                $class = " class='" . esc_attr( $r['class'] ) . "'";
+            }
+
+            $output = "<select name='" . esc_attr( $r['name'] ) . "'" . $class . " id='" . esc_attr( $r['id'] ) . "'>\n";
+            if ( $r['show_option_no_change'] ) {
+                $output .= "\t<option value=\"-1\">" . $r['show_option_no_change'] . "</option>\n";
+            }
+            if ( $r['show_option_none'] ) {
+                $output .= "\t<option value=\"" . esc_attr( $r['option_none_value'] ) . '">' . $r['show_option_none'] . "</option>\n";
+            }
+
+            $walker = new Visa4_Page_DropDown();
+            $args = array( $pages, $r['depth'], $r );
+
+            $output .= call_user_func_array( array( $walker, 'walk' ), $args );
+            $output .= "</select>\n";
+        }
+
+        /**
+         * Filters the HTML output of a list of pages as a drop down.
+         *
+         * @since 2.1.0
+         * @since 4.4.0 `$r` and `$pages` added as arguments.
+         *
+         * @param string $output HTML output for drop down list of pages.
+         * @param array  $r      The parsed arguments array.
+         * @param array  $pages  List of WP_Post objects returned by `get_pages()`
+         */
+        $html = apply_filters( 'wp_dropdown_pages', $output, $r, $pages );
+
+        if ( $r['echo'] ) {
+            echo $html;
+        }
+
+        return $html;
+	}
 	/**
 	 * Helper function to get the formatted description and tip HTML for a
 	 * given form field. Plugins can call this when implementing their own custom

@@ -32,11 +32,9 @@ class VISA4_Settings_Countries extends VISA4_Settings_Tab {
 	public function output() {
 		wp_localize_script(
 			'visa4-countries-settings', 'visa4CountriesSettingsParams', array(
-				'countries'                   => Visa4()->countries_manager->get_countries_connected_to_product(),
+				'countries'          => Visa4()->countries_manager->get_valid_countries_full_data(),
 				'default_country'    => array(
-					'term_id'     => 0,
-					'name'        => '',
-					'description' => '',
+                    'source_countries' => array(),
 				),
 				'strings'                   => array(
 					'unload_confirmation_msg' => __( 'Your changed data will be lost if you leave this page without saving' ),

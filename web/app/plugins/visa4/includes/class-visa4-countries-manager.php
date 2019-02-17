@@ -40,6 +40,34 @@ class VISA4_Countries_Manager {
     }
 
     /**
+     * Get countries that are completely valid - connected to a form and a product (including all data)
+     *
+     * @return array - the valid countries
+     */
+    public function get_valid_countries_full_data() {
+        $valid_products = $this->get_valid_products();
+        $all_countries = Visa4()->countries->get_countries();
+
+        $countries = array();
+
+        foreach ( $valid_products as $product ) {
+            $post = $product['post'];
+            $country = array(
+                'country_code' => $product[ 'country_code' ],
+                'name' => $all_countries[ $product[ 'country_code' ] ],
+                'product_name' => $post->post_name,
+                'source_countries' => get_post_meta( $post->ID, 'visa4_source_countries' ),
+                'edit_link' => html_entity_decode( get_edit_post_link( $post->ID ) ),
+                'view_link' => html_entity_decode( get_permalink( $post->ID ) )
+            );
+
+            $countries[ $product[ 'country_code' ] ] = $country;
+        }
+
+        return $countries;
+    }
+
+    /**
      * Get countries that are completely valid - connected to a form and a product
      *
      * @return array - the valid countries

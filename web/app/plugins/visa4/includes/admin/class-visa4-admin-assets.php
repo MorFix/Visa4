@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( class_exists( 'VISA4_Admin_Assets', false ) ) {
-	return;
+	return new VISA4_Admin_Assets();
 }
 
 /**
@@ -31,13 +31,13 @@ class VISA4_Admin_Assets {
 
 	}
 
-
 	/**
 	 * Enqueue scripts.
 	 */
 	public function admin_scripts() {
-		wp_register_script( 'visa4-countries-settings', Visa4()->plugin_url() . '/assets/js/admin/countries-settings.js', array( 'jquery', 'wp-util', 'backbone' ), VISA4_VERSION );
+        wp_register_script( 'jquery-blockui', Visa4()->plugin_url() . '/assets/js/jquery-blockui/jquery.blockUI.js', array( 'jquery' ), '2.70', true );
+		wp_register_script( 'visa4-countries-settings', Visa4()->plugin_url() . '/assets/js/admin/countries-settings.js', array( 'jquery', 'wp-util', 'backbone', 'underscore', 'jquery-ui-sortable', 'jquery-blockui' ), VISA4_VERSION, true );
 	}
 }
 
-return new WC_Admin_Assets();
+return new VISA4_Admin_Assets();

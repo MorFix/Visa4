@@ -8,6 +8,13 @@
 	};
 
 	const changeTab = tabIdAttr => {
+		const saveButton = $( '#save-btn' );
+		if ( tabIdAttr === 'nav-tab-countries' ) {
+			saveButton.hide();
+		} else {
+			saveButton.show();
+		}
+
 		$('.tab-wrapper').hide();
 		$('.nav-tab').removeClass( 'nav-tab-active' );
 
@@ -48,7 +55,17 @@
 			changeTab( $(this).attr( 'id' ) );
 		});
 
-		$( '#visa4_settings' ).on('submit', save)
+		$( '#visa4_settings' ).on('submit', save);
+
+		$( '.visa4_select_page' ).each(function () {
+			const $tr = $( this );
+			$tr.find( 'select' ).on( 'change', function() {
+				$tr.find( '.visa4_edit_pgae a' )
+				   .prop( 'href', $( this )
+				   .find( 'option:selected' )
+				   .data('editlink') );
+			}).change();
+		});
 	});
 	
 })( jQuery, ajaxurl );
