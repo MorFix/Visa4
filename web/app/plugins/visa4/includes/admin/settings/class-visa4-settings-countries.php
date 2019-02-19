@@ -32,10 +32,13 @@ class VISA4_Settings_Countries extends VISA4_Settings_Tab {
 	public function output() {
 		wp_localize_script(
 			'visa4-countries-settings', 'visa4CountriesSettingsParams', array(
-				'countries'          => Visa4()->countries_manager->get_valid_countries_full_data(),
-				'default_country'    => array(
+				'countries'          => Visa4()->countries_manager->get_countries_connected_to_product_full_data(),
+				'defaultCountry'    => array(
                     'source_countries' => array(),
 				),
+				'allCountries' => Visa4()->countries->get_countries(),
+				'allForms' => Visa4()->countries_manager->get_forms(),
+				'formsLink' => admin_url( 'admin.php?page=formcraft-dashboard' ),
 				'strings'                   => array(
 					'unload_confirmation_msg' => __( 'Your changed data will be lost if you leave this page without saving' ),
 					'save_failed'             => __( 'Your changes were not saved. Please retry.' ),
@@ -51,6 +54,8 @@ class VISA4_Settings_Countries extends VISA4_Settings_Tab {
 			'visa4-source-countries'    => __( 'Source Countries' ),
 			'visa4-country-edit-link'   => __( 'Edit product' ),
 			'visa4-country-view-link'   => __( 'View product' ),
+            'visa4-country-select-form' => __( 'Custom form' ),
+            'visa4-country-edit-form'   => __( 'Edit custom form' ),
 		);
 
 		include_once dirname( __FILE__ ) . '/views/html-visa4-settings-countries.php';

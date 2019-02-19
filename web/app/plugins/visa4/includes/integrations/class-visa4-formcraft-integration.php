@@ -129,6 +129,25 @@ class VISA4_FormCraft_Integration {
                !empty ( $addons[ self::VISA4_FC_ADDON ][ self::VISA4_FC_ADDON_COUNTRY_KEY ] &&
                in_array( $addons[ self::VISA4_FC_ADDON ][ self::VISA4_FC_ADDON_COUNTRY_KEY ], $country_codes ));
     }
+
+    /**
+     * Get all forms
+     *
+     * @return array
+     */
+    public static function get_forms()
+    {
+        global $wpdb, $fc_forms_table;
+
+        $forms = $wpdb->get_results( "SELECT id, name FROM " . $fc_forms_table, ARRAY_A );
+
+        $all_forms = array();
+        foreach ( $forms as $form ) {
+            $all_forms[$form['id']] = $form;
+        }
+
+        return $all_forms;
+    }
 }
 
 VISA4_FormCraft_Integration::init();

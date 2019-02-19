@@ -40,31 +40,65 @@ class VISA4_Countries_Manager {
     }
 
     /**
-     * Get countries that are completely valid - connected to a form and a product (including all data)
+     * Get countries that are connected to a product (including all data)
      *
      * @return array - the valid countries
      */
-    public function get_valid_countries_full_data() {
-        $valid_products = $this->get_valid_products();
+    public function get_countries_connected_to_product_full_data() {
+        $countries = array();
         $all_countries = Visa4()->countries->get_countries();
 
-        $countries = array();
+        $args = array (
+            'post_type' => 'product',
+            'meta_key' => 'visa4_country',
+            'meta_value'   => array_keys( $all_countries ),
+            'meta_compare' => 'IN'
+        );
 
-        foreach ( $valid_products as $product ) {
-            $post = $product['post'];
-            $country = array(
-                'country_code' => $product[ 'country_code' ],
-                'name' => $all_countries[ $product[ 'country_code' ] ],
-                'product_name' => $post->post_name,
-                'source_countries' => get_post_meta( $post->ID, 'visa4_source_countries' ),
-                'edit_link' => html_entity_decode( get_edit_post_link( $post->ID ) ),
-                'view_link' => html_entity_decode( get_permalink( $post->ID ) )
+        $query = new WP_Query( $args );
+
+        while ( $query->have_posts() ): $query->the_post();
+
+            $country_code = get_post_meta( $query->post->ID, 'visa4_country' , true );
+            $source_countries = get_post_meta( $query->post->ID, 'visa4_source_countries', true );
+
+            $countries[ $country_code ] = array(
+                'country_code' => $country_code,
+                'name' => $all_countries[ $country_code ],
+                'product_name' => $query->post->post_title,
+                'source_countries' => !sizeof( $source_countries ) ? null : $source_countries,
+                'edit_link' => html_entity_decode( get_edit_post_link( $query->post->ID ) ),
+                'view_link' => html_entity_decode( get_permalink( $query->post->ID ) ),
+                'form_id' => $this->get_form_id( $country_code )
             );
 
-            $countries[ $product[ 'country_code' ] ] = $country;
-        }
+        endwhile;
+        wp_reset_query();
 
         return $countries;
+    }
+
+    /**
+     * Get product by country code
+     *
+     * @param $country_code
+     * @return WP_Post|null
+     */
+    public function get_product_by_country( $country_code ) {
+        $args = array (
+            'post_type' => 'product',
+            'posts_per_page' => '1',
+            'meta_key' => 'visa4_country',
+            'meta_value'   => $country_code,
+        );
+
+        $result = get_posts( $args );
+
+        if ( is_wp_error( $result ) || !$result[0] ) {
+            return null;
+        }
+
+        return $result[0];
     }
 
     /**
@@ -150,5 +184,15 @@ class VISA4_Countries_Manager {
         }
 
         return '';
+    }
+
+    /**
+     * Get all forms
+     *
+     * @return array
+     */
+    public function get_forms()
+    {
+        return VISA4_FormCraft_Integration::get_forms();
     }
 }

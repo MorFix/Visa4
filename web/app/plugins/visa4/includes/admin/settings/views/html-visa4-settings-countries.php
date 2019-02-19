@@ -45,12 +45,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 </script>
 
 <script type="text/html" id="tmpl-visa4-source-country">
-    {{ data }}
+    <div>{{ data }}</div>
 </script>
 
 <script type="text/html" id="tmpl-visa4-country-row">
-	<tr data-id="{{ data.country_code }}">
+	<tr data-id="{{ data.country_key || data.country_code }}">
 		<?php
+        $countries = Visa4()->countries->get_countries();
+        $forms = Visa4()->countries_manager->get_forms();
+
 		foreach ( $visa4_countries_columns as $class => $heading ) {
 			echo '<td class="' . esc_attr( $class ) . '">';
 			switch ( $class ) {
@@ -60,7 +63,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 						{{ data.name }}
 						<div class="row-actions">
 							<a class="visa4-country-edit" href="#">
-                                <?php esc_html_e( 'Edit' ); ?></a> | <a href="#" class="visa4-country-delete"><?php esc_html_e( 'Remove' ); ?></a>
+                                <?php esc_html_e( 'Edit' ); ?>
+                            </a> | <a href="#" class="visa4-country-delete"><?php esc_html_e( 'Remove' ); ?></a>
 						</div>
 					</div>
 					<div class="edit">
@@ -69,6 +73,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<a class="visa4-country-cancel-edit" href="#"><?php esc_html_e( 'Cancel changes' ); ?></a>
 						</div>
 					</div>
+                    <div class="add">
+                        <select name="destination[{{ data.country_code }}]" data-attribute="country_code">
+                            <?php foreach ($countries as $country_code => $name) : ?>
+                                <option value="<?= $country_code; ?>"><?= $name; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="row-actions">
+                            <a class="visa4-country-cancel-edit" href="#"><?php esc_html_e( 'Cancel changes' ); ?></a>
+                        </div>
+                    </div>
 					<?php
 					break;
 				case 'visa4-source-countries':
@@ -76,10 +90,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="view">
                         <div class="source_countries"></div>
                     </div>
-					<div class="edit">
+					<div class="edit add">
                         <select name="source_countries[{{ data.country_code }}]" data-attribute="source_countries" multiple>
-                            <?php foreach (Visa4()->countries->get_countries() as $country_code => $name) : ?>
-                            <option value="<?= $country_code; ?>" select="source"><?= $name; ?></option>
+                            <?php foreach ($countries as $country_code => $name) : ?>
+                            <option value="<?= $country_code; ?>"><?= $name; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -87,18 +101,49 @@ if ( ! defined( 'ABSPATH' ) ) {
 					break;
 				case 'visa4-country-edit-link':
                     ?>
-                    <a href="{{ decodeURIComponent( data.edit_link ) }}" target="_blank">
-                        Edit "{{ data.product_name }}"
-                    </a>
+                    <div class="view edit">
+                        <a href="{{ decodeURIComponent( data.edit_link ) }}" target="_blank">
+                            Edit "{{ data.product_name }}"
+                        </a>
+                    </div>
 					<?php
 					break;
 				case 'visa4-country-view-link':
 					?>
-					<a href="{{ decodeURIComponent( data.view_link ) }}" target="_blank">
-                        View "{{ data.product_name }}"
-                    </a>
+                    <div class="view edit">
+                        <a href="{{ decodeURIComponent( data.view_link ) }}" target="_blank">
+                            View "{{ data.product_name }}"
+                        </a>
+                    </div>
 					<?php
 					break;
+                case 'visa4-country-select-form':
+                    ?>
+                    <div class="view">
+                        {{ data.allForms[data.form_id] ? data.allForms[data.form_id].name : 'No connected form' }}
+                    </div>
+                    <div class="edit add">
+                        <select name="form_id[{{ data.country_code }}]" data-attribute="form_id">
+                            <option value="">None</option>
+                            <?php foreach ( $forms as $id => $form ) : ?>
+                                <option value="<?= $id; ?>"><?= $form['name']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <?php
+                    break;
+                case 'visa4-country-edit-form':
+                    ?>
+                    <div class="view">
+                        <a class="conditional-form" href="{{ decodeURIComponent( data.formsLink ) + '&id=' + data.form_id }}" target="_blank">
+                            Edit custom form
+                        </a>
+                        <a class="conditional-no-form" href="{{ decodeURIComponent( data.formsLink ) }}" target="_blank">
+                            Create custom form
+                        </a>
+                    </div>
+                    <?php
+                    break;
 				default:
 					break;
 			}

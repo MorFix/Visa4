@@ -1,11 +1,9 @@
 Map Countries
-	Hide View on Creation
-	Hide Edit on Creation
-	Let select form?
-	Let select new country
+	Disconnect form
+	Delete product
+	Create product
+	Update form
 	Let resize selector
-	Save data on ajax endpoint
-	Fix deletion bug
 Documentation
 Remove OnAjax event
 Remove Sidebar widgets

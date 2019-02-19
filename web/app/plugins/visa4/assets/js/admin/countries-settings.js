@@ -11,21 +11,24 @@
             Country       = Backbone.Model.extend({
                 changes: {},
                 logChanges: function( changedRows ) {
-                    var changes = this.changes || {};
+                    const changes = this.changes || {};
 
-                    _.each( changedRows, function( row, id ) {
-                        changes[ id ] = _.extend( changes[ id ] || { country_code : id }, row );
+                    _.each( changedRows, function( row, country_code ) {
+                        changes[ country_code ] = _.extend( changes[ country_code ] || { country_code }, row );
                     } );
 
                     this.changes = changes;
-                    this.trigger( 'change:countries' );
+
+                    if (Object.keys(this.changes).length) {
+                        this.trigger( 'change:countries' );
+                    }
                 },
                 save: function() {
                     if ( _.size( this.changes ) ) {
-                        $.post( ajaxurl + ( ajaxurl.indexOf( '?' ) > 0 ? '&' : '?' ) + 'action=woocommerce_shipping_classes_save_changes', {
+                        $.post( ajaxurl + ( ajaxurl.indexOf( '?' ) > 0 ? '&' : '?' ) + 'action=visa4_save_admin_countries_settings', {
                             wc_shipping_classes_nonce : data.wc_shipping_classes_nonce,
                             changes                 : this.changes
-                        }, this.onSaveResponse, 'json' );
+                        }, this.onSaveResponse.bind(this), 'json' );
                     } else {
                         this.trigger( 'saved:countries' );
                     }
@@ -86,32 +89,54 @@
                 },
                 render: function() {
                     var countries       = _.indexBy( this.model.get( 'countries' ), 'country_code' ),
+                        newCountries    = Object.keys(this.model.changes)
+                                                .filter(key => this.model.changes[key].newRow)
+                                                .reduce((obj, key) => {
+                                                    obj[key] = this.model.changes[key];
+
+                                                    return obj;
+                                                }, {});
                         view        = this;
 
                     this.$el.empty();
                     this.unblock();
 
-                    if ( _.size( countries ) ) {
+                    if ( _.size( countries ) || _.size( newCountries ) ) {
                         // Sort countries
                         countries = _.sortBy( countries, function( country ) {
                             return country.name;
                         } );
 
+                        const self = this;
                         // Populate $tbody with the current countries
                         $.each( countries, function( id, rowData ) {
-                            view.renderRow( rowData );
+                            view.renderRow( Object.assign( {}, rowData, self.model.changes[ rowData.country_code ] ) );
+                        } );
+
+                        $.each( newCountries, function( id, rowData ) {
+                            view.renderRow( Object.assign( {}, rowData, { country_key: id || rowData.country_code } ) );
                         } );
                     } else {
                         view.$el.append( $blank_template );
                     }
                 },
                 createRowTemplate: function( rowData ) {
-                    const row = $( this.rowTemplate( rowData ) );
-                    const sourceCountries = row.find('.source_countries');
+                    const row = $( this.rowTemplate( Object.assign({}, rowData, {
+                        formsLink: data.formsLink,
+                        allForms: data.allForms
+                    }) ) );
+                    if ( rowData.form_id ) {
+                        row.find('.conditional-no-form').hide();
+                    } else {
+                        row.find('.conditional-form').hide();
+                    }
 
-                    rowData.source_countries.forEach(function( country ) {
+                    const sourceCountries = row.find('.source_countries');
+                    const self = this;
+
+                    rowData.source_countries && rowData.source_countries.forEach(function( country ) {
                         const elem = $( document.createElement('div') );
-                        elem.html( this.sourceCountryTemplate( country ) );
+                        elem.html( self.sourceCountryTemplate( visa4CountriesSettingsParams.allCountries[country] ) );
 
                         sourceCountries.append( elem );
                     });
@@ -127,31 +152,39 @@
                 },
                 initRow: function( rowData ) {
                     var view = this;
-                    var $tr = view.$el.find( 'tr[data-id="' + rowData.country_code + '"]');
+                    var $tr = view.$el.find( 'tr[data-id="' + (rowData.country_key || rowData.country_code) + '"]');
+
+                    // Support regular select boxes
+                    $tr.find( 'select:not([multiple])' ).each( function() {
+                        const attribute = $( this ).data( 'attribute' );
+                        $( this ).find( 'option[value="' + rowData[ attribute ] + '"]' ).prop( 'selected', true );
+                    } );
 
                     // Support multi select boxes
-                    $tr.find( 'select' ).each( function() {
+                    $tr.find( 'select[multiple]' ).each( function() {
                         const attribute = $( this ).data( 'attribute' );
                         $( this ).find( 'option' ).each( function () {
                             const option = $( this );
-                            if ( rowData[attribute].includes( option.val() ) ) {
+                            if ( rowData[attribute] && rowData[attribute].includes( option.val() ) ) {
                                 option.prop( 'selected', true );
                             }
                         } );
                     } );
 
                     // Make the rows function
+                    $tr.find( '.edit, .add' ).hide();
                     $tr.find( '.view' ).show();
-                    $tr.find( '.edit' ).hide();
                     $tr.find( '.visa4-country-edit' ).on( 'click', { view: this }, this.onEditRow );
                     $tr.find( '.visa4-country-delete' ).on( 'click', { view: this }, this.onDeleteRow );
                     $tr.find( '.editing .visa4-country-edit' ).trigger('click');
                     $tr.find( '.visa4-country-cancel-edit' ).on( 'click', { view: this }, this.onCancelEditRow );
 
-                    // Editing?
-                    if ( true === rowData.editing ) {
-                        $tr.addClass( 'editing' );
+                    // Editing ?
+                    if ( rowData.editing ) {
                         $tr.find( '.visa4-country-edit' ).trigger( 'click' );
+                    // Adding new ?
+                    } else if ( rowData.newRow ) {
+                        this.initNewRow( $tr, rowData );
                     }
                 },
                 onSubmit: function( event ) {
@@ -159,30 +192,50 @@
                     event.data.view.model.save();
                     event.preventDefault();
                 },
+                initNewRow: function( $tr, rowData ) {
+                    $tr.find('.view, .edit').hide();
+                    $tr.find('.add').show();
+                    this.model.trigger( 'change:countries' );
+
+                    // Setting the real value of the country code select field (like triggering a change)
+                    const selector = 'select[name="destination[' + rowData.country_key + ']"]';
+                    const changes = {};
+
+                    changes[ rowData.country_key ] = {
+                        'country_code': $tr.find(selector).val(),
+                    };
+
+                    this.model.logChanges( changes )
+                },
                 onAddNewRow: function( event ) {
                     event.preventDefault();
 
-                    var view    = event.data.view,
+                    const view    = event.data.view,
                         model   = view.model,
                         countries   = _.indexBy( model.get( 'countries' ), 'country_code' ),
                         changes = {},
                         size    = _.size( countries ),
-                        newRow  = Object.assign( {}, data.default_country, {
+                        newRow  = Object.assign( {}, data.defaultCountry, {
                             country_code: 'new-' + size + '-' + Date.now(),
-                            editing: true,
                             newRow : true
                         } );
 
                     changes[ newRow.country_code ] = newRow;
 
                     model.logChanges( changes );
-                    view.renderRow( newRow );
+                    view.render();
                 },
                 onEditRow: function( event ) {
+                    const $tr = $( this ).closest('tr');
+
                     event.preventDefault();
-                    $( this ).closest('tr').addClass('editing');
-                    $( this ).closest('tr').find('.view').hide();
-                    $( this ).closest('tr').find('.edit').show();
+                    $tr.addClass('editing');
+                    $tr.find('.view, .add').hide();
+                    $tr.find('.edit').show();
+
+                    const id = $tr.data( 'id' );
+                    _.indexBy( event.data.view.model.get( 'countries' ), 'country_code' )[id]['editing'] = true;
+
                     event.data.view.model.trigger( 'change:countries' );
                 },
                 onDeleteRow: function( event ) {
@@ -198,6 +251,7 @@
                         delete countries[ country_code ];
                         changes[ country_code ] = _.extend( changes[ country_code ] || {}, { deleted : 'deleted' } );
                         model.set( 'countries', countries );
+
                         model.logChanges( changes );
                     }
 
@@ -213,13 +267,15 @@
                     event.preventDefault();
                     model.discardChanges( country_code );
 
+                    // Cancelling edit an existing country ?
                     if ( countries[ country_code ] ) {
-                        countries[ country_code ].editing = false;
+                        delete countries[ country_code ].editing;
                         row.after( view.createRowTemplate( countries[ country_code ] ) );
                         view.initRow( countries[ country_code ] );
                     }
 
                     row.remove();
+                    view.render();
                 },
                 setUnloadConfirmation: function() {
                     this.needsUnloadConfirm = true;
@@ -245,7 +301,7 @@
                         countries   = _.indexBy( model.get( 'countries' ), 'country_code' ),
                         changes = {};
 
-                    if ( ! countries[ country_code ] || countries[ country_code ][ attribute ] !== value ) {
+                    if ( ! countries[ country_code ] || !_.isEqual( countries[ country_code ][ attribute ], value ) ) {
                         changes[ country_code ] = {};
                         changes[ country_code ][ attribute ] = value;
                     }
