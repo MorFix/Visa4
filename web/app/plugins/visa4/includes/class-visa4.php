@@ -8,6 +8,13 @@ defined( 'ABSPATH' ) || exit;
 
 final class Visa4 {
 
+    /**
+     * String constants
+     */
+    const COUNTRY_META_KEY = 'visa4_country';
+    const SOURCE_COUNTRIES_META_KEY = 'visa4_source_countries';
+    const FORM_META_KEY = 'visa4_form_id';
+
 	/**
 	 * Visa4 version.
 	 *

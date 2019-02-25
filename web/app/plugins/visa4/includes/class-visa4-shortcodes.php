@@ -55,7 +55,7 @@ class VISA4_Shortcodes {
                                 <?php if ( is_product() ): ?>
                                 <h4 class="title">
                                     <?php
-                                    $country_code = esc_attr( get_post_meta( get_the_ID(), 'visa4_country', true ) );
+                                    $country_code = esc_attr( get_post_meta( get_the_ID(), VISA4::COUNTRY_META_KEY, true ) );
                                     echo Visa4()->countries->get_countries()[ $country_code ];
                                     ?>
                                 </h4>

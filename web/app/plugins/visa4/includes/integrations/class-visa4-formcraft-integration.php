@@ -18,6 +18,7 @@ class VISA4_FormCraft_Integration {
      */
 	public static function init() {
 		add_action( 'formcraft_addon_init' , array( __CLASS__, 'visa4_formcraft_addon' ));
+        add_action( 'wp_ajax_formcraft3_form_save', array( __CLASS__, 'visa4_formcraft_form_save' ), 1 );
 	}
 
     /**
@@ -31,11 +32,64 @@ class VISA4_FormCraft_Integration {
      * Output the select box
      */
 	public static function output() {
-	    $visa4_fc_addon = self::VISA4_FC_ADDON;
-	    $visa4_fc_addon_country_key = self::VISA4_FC_ADDON_COUNTRY_KEY;
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        $visa4_fc_addon = self::VISA4_FC_ADDON;
+
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        $visa4_fc_addon_country_key = self::VISA4_FC_ADDON_COUNTRY_KEY;
 
 		include(dirname(__FILE__) . '/views/html-visa4-fc-addon.php');
 	}
+
+    /**
+     * Hook into the admin save action of formcraft so we can update a product when a form is changed
+     */
+    public static function visa4_formcraft_form_save() {
+        global $fc_meta;
+        if ( !current_user_can( $fc_meta['user_can'] ) || !ctype_digit( $_POST['id'] ) ) {
+            return;
+        }
+
+        $addons = json_decode( stripslashes( $_POST['addons'] ), true );
+        if ( !$addons[ self::VISA4_FC_ADDON ] ) {
+            return;
+        }
+
+        $form = self::get_form_by_country( $addons[ self::VISA4_FC_ADDON ][ self::VISA4_FC_ADDON_COUNTRY_KEY ] );
+        if ( $form !== null && absint( $form['id'] ) !== absint( $_POST['id'] ) ) {
+            echo json_encode( array( 'failed' => __( 'Form is already connected to another country' ) ) );
+            die();
+        }
+
+        $country_code = $addons[ self::VISA4_FC_ADDON ][ self::VISA4_FC_ADDON_COUNTRY_KEY ];
+
+        /**
+         * @var $post WP_Post
+         */
+
+        // Are we detaching a form from a product ?
+        if ( !$country_code ) {
+            $post = Visa4()->countries_manager->get_product_by_form( absint( $_POST['id'] ) );
+
+            // The form was not attached to any product
+            if ( !$post ) {
+                return;
+            }
+
+            delete_post_meta( $post->ID, VISA4::FORM_META_KEY );
+
+            return;
+        }
+
+        $post = Visa4()->countries_manager->get_product_by_country( $country_code );
+
+        if ( !$post ) {
+            echo json_encode( array( 'failed' => __( 'Invalid country selected' ) ) );
+            die();
+        }
+
+        update_post_meta( $post->ID, Visa4::FORM_META_KEY, esc_sql( $_POST['id'] ) );
+    }
 
     /**
      * Get all Visa4 countries that are connected to a form
@@ -94,22 +148,22 @@ class VISA4_FormCraft_Integration {
     }
 
     /**
-     * Get a FormCraft form ID that is connected to a requested country code
+     * Get a FormCraft form that is connected to a requested country code
      *
      * @param $country_code - The desired country code
-     * @return int - The form Id or null
+     * @return array - The form or null
      */
-    public static function get_form_id( $country_code ) {
+    public static function get_form_by_country( $country_code ) {
         global $wpdb, $fc_forms_table;
 
-        $forms = $wpdb->get_results( "SELECT id, addons FROM $fc_forms_table", ARRAY_A );
+        $forms = $wpdb->get_results( "SELECT id, name, addons FROM $fc_forms_table", ARRAY_A );
 
         foreach ($forms as $form) {
             $addons = json_decode( stripcslashes( $form[ 'addons' ] ) , 1 );
 
             if ( !empty ( $addons[ self::VISA4_FC_ADDON ] ) &&
                  $addons[ self::VISA4_FC_ADDON ][ self::VISA4_FC_ADDON_COUNTRY_KEY ] === $country_code ) {
-                return $form['id'];
+                return $form;
             }
         }
 
@@ -147,6 +201,89 @@ class VISA4_FormCraft_Integration {
         }
 
         return $all_forms;
+    }
+
+    /**
+     * Get a form by ID
+     *
+     * @param int $id - Form ID
+     *
+     * @return array|null - The form
+     */
+    public static function get_form( $id )
+    {
+        global $wpdb, $fc_forms_table;
+
+        if ( !is_numeric( $id ) ) {
+            return null;
+        }
+
+        $forms = $wpdb->get_results( "SELECT id, name, addons FROM " . $fc_forms_table . " WHERE id = " . absint( $id ) . " LIMIT 1", ARRAY_A );
+        if ( !$forms[0] ) {
+            return null;
+        }
+
+        return $forms[0];
+    }
+
+    /**
+     * Get connected Visa4 Country code by form ID
+     *
+     * @param int $form_id - The form
+     *
+     * @return string|null;
+     */
+    public static function get_country_by_form( $form_id ) {
+        $form = self::get_form( absint( $form_id ) );
+        if ( !$form ) {
+            return null;
+        }
+
+        $addons = json_decode( stripcslashes( $form[ 'addons' ] ) , 1 );
+
+        if ( empty( $addons[ self::VISA4_FC_ADDON ] ) ||
+             empty( $addons[ self::VISA4_FC_ADDON ][ self::VISA4_FC_ADDON_COUNTRY_KEY ] )) {
+            return null;
+        }
+
+        return $addons[ self::VISA4_FC_ADDON ][ self::VISA4_FC_ADDON_COUNTRY_KEY ];
+    }
+
+    /**
+     * Change country attached to a form
+     *
+     * @param int $form_id - The form
+     * @param $country_code - The new country
+     *
+     * @return string|null - Might be an error string;
+     */
+    public static function update_country_in_form( $form_id, $country_code ) {
+        global $wpdb, $fc_forms_table;
+
+        $form = self::get_form( absint( $form_id ) );
+        if ( empty( $form ) ) {
+            return __( 'Cannot find form' );
+        }
+
+        if ( !empty( $country_code ) && empty( Visa4()->countries->get_countries()[ $country_code ] ) ) {
+            return __( 'Cannot find country' );
+        }
+
+        $addons = json_decode( stripcslashes( $form[ 'addons' ] ) , 1 );
+        $addons[self::VISA4_FC_ADDON][self::VISA4_FC_ADDON_COUNTRY_KEY] = $country_code;
+        $addons = esc_sql( stripslashes( json_encode( $addons ) ) );
+
+        $result = $wpdb->update(
+            $fc_forms_table,
+            array( 'addons' => $addons ),
+            array( 'id' => $form_id )
+        );
+
+        if ( !$result ) {
+            return __( 'An error has occurred while updating the form' );
+        }
+
+        return null;
     }
 }
 

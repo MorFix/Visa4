@@ -48,6 +48,9 @@ class VISA4_AJAX {
 	 * Check for Visa4 Ajax request and fire action.
 	 */
 	public static function do_visa4_ajax() {
+        /**
+         * @var $wp_query WP_Query
+         */
 		global $wp_query;
 
 		if ( ! empty( $_GET[self::VISA4_AJAX_SLUG] ) ) {
@@ -130,55 +133,7 @@ class VISA4_AJAX {
         $changes = $_POST['changes'];
 
         foreach ( $changes as $country ) {
-            if ( isset( $country['deleted'] ) ) {
-                if ( isset( $country['newRow'] ) ) {
-                    // So the user added and deleted a new row.
-                    // That's fine, it's not in the database anyways. NEXT!
-                    continue;
-                }
-
-                // TODO: Disconnect the associated form
-
-                // TODO: Delete the product
-                continue;
-            }
-
-            $update_args = array();
-
-            if ( isset( $country['country_code'] ) ) {
-                if ( !Visa4()->countries->get_countries()[ $country['country_code'] ] ) {
-                    wp_send_json_error( __( 'Invalid destination country selected' ) );
-                    wp_die();
-                }
-
-                $update_args['country_code'] = $country['country_code'];
-            }
-
-            $update_args['source_countries'] = array();
-            if ( isset( $country['source_countries'] ) && is_array( $country['source_countries'] ) ) {
-                foreach ( $country['source_countries'] as $source_country_code ) {
-                    if ( !Visa4()->countries->get_countries()[ $source_country_code ] ) {
-                        wp_send_json_error( __( 'Invalid source country selected' ) );
-                        wp_die();
-                    }
-
-                    $update_args['source_countries'][] = $source_country_code;
-                }
-            }
-
-            if ( isset( $country['newRow'] ) ) {
-                // TODO: Create the product
-            } else {
-                $post = Visa4()->countries_manager->get_product_by_country( $update_args['country_code'] );
-                if ( !$post ) {
-                    wp_send_json_error( __( 'Unknown error occurred' ) );
-                    wp_die();
-                }
-
-                update_post_meta( $post->ID, 'visa4_source_countries', $update_args['source_countries'] );
-
-                // TODO: update the associated form
-            }
+            self::handle_country_change( $country );
         }
 
         wp_send_json_success(
@@ -186,6 +141,132 @@ class VISA4_AJAX {
                 'countries' => Visa4()->countries_manager->get_countries_connected_to_product_full_data(),
             )
         );
+    }
+
+    private static function handle_country_change ( $country ) {
+        // Checking for a valid country
+        if ( !Visa4()->countries->get_countries()[ $country['country_code'] ] ) {
+            wp_send_json_error( sprintf( __( 'Invalid destination country code: %s'  ), $country['country_code'] ) );
+            wp_die();
+        };
+
+        $country_code = $country['country_code'];
+
+        if ( isset( $country['deleted'] ) ) {
+            self::delete_country( $country_code, isset( $country['newRow'] ) );
+
+            return;
+        }
+
+        if ( isset( $country['source_countries'] ) && is_array( $country['source_countries'] ) ) {
+            self::ensure_source_countries( $country['source_countries'] );
+            $source_countries = $country['source_countries'];
+        }
+
+        if ( isset( $country['newRow'] ) ) {
+            self::create_country( $country_code, isset( $source_countries ) ? $source_countries : null );
+
+            return;
+        }
+
+        $post = Visa4()->countries_manager->get_product_by_country( $country_code );
+        if ( !$post ) {
+            self::send_country_error( $country_code );
+        }
+
+        if ( isset( $source_countries ) ) {
+            update_post_meta( $post->ID, Visa4::SOURCE_COUNTRIES_META_KEY, $source_countries );
+        }
+
+
+        $error = Visa4()->countries_manager->update_form_country( absint( $country['form_id'] ), $country_code );
+        if ( !empty( $error ) ) {
+            wp_send_json_error( $error );
+        }
+    }
+
+    /**
+     * Tells the user we cannot find the specified country code
+     *
+     * @param $country_code - The country code
+     */
+    private static function send_country_error($country_code ) {
+        $name = Visa4()->countries->get_countries()[ $country_code ];
+        wp_send_json_error( sprintf( __( 'Cannot find product for %s' ), $name) );
+        wp_die();
+    }
+
+    /**
+     * Handling a deletion of a country
+     *
+     * @param $country_code - The request country code
+     * @param $is_new - Whether the "newRow" flag is on
+     */
+    private static function delete_country( $country_code, $is_new )
+    {
+        // So the user added and deleted a new row.
+        // That's fine, it's not in the database anyway. NEXT!
+        if ( $is_new ) {
+            return;
+        }
+
+        // Detaching this country from it's form
+        Visa4()->countries_manager->detach_form( $country_code );
+
+        // Removing the post
+        $post = Visa4()->countries_manager->get_product_by_country( $country_code );
+        if ( !empty( $post ) ) {
+            wp_delete_post($post->ID, true);
+        } else {
+            self::send_country_error( $country_code );
+        }
+
+        return;
+    }
+
+    /**
+     * Ensuring that all source countries are valid
+     *
+     * @param array $source_countries - The countries list
+     */
+    private static function ensure_source_countries( array $source_countries )
+    {
+        foreach ( $source_countries as $country_code ) {
+            if (!Visa4()->countries->get_countries()[$country_code]) {
+                wp_send_json_error(sprintf(__('Invalid source country code: %s'), $country_code));
+                wp_die();
+            }
+        }
+    }
+
+    /**
+     * Creating all we need for a new country
+     *
+     * @param $country_code - The requested country
+     * @param $source_countries - The source countries that need visa for this destination
+     */
+    private static function create_country( $country_code, $source_countries = null )
+    {
+        $post = Visa4()->countries_manager->get_product_by_country( $country_code );
+        if ($post) {
+            $cc = get_post_meta( $post->ID, VISA4::COUNTRY_META_KEY, $country_code );
+            $name = Visa4()->countries->get_countries()[$cc];
+
+            wp_send_json_error(sprintf(__('Product already exists for %s'), $name));
+        }
+
+        /**
+         * @var $result WP_Post|WP_Error
+         */
+        // TODO: Implement
+        $id = Visa4()->countries_manager->create_product( $country_code );
+        if ( is_wp_error( $id ) ) {
+            wp_send_json_error($result->get_error_message());
+        }
+
+        if ( isset( $source_countries ) ) {
+            update_post_meta( $id, Visa4::SOURCE_COUNTRIES_META_KEY, $source_countries );
+        }
     }
 }
 

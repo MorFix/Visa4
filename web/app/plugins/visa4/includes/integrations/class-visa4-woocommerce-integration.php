@@ -10,7 +10,6 @@ defined( 'ABSPATH' ) || exit;
  */
 class VISA4_WooCommerce_Integration {
 
-    const VISA4_COUNTRY_META_KEY = 'visa4_country';
     const FORM_SUBMISSION_REQUEST_KEY = 'submission_id';
     const FORM_SUBMISSION_ID_META_KEY = 'form_submission_id';
     const VISA4_SOURCE_COUNTRY_META_KEY = 'visa4_source';
@@ -89,7 +88,7 @@ class VISA4_WooCommerce_Integration {
 			return;
 		}
 
-		$product->update_meta_data( self::VISA4_COUNTRY_META_KEY, esc_attr( $value ) );
+		$product->update_meta_data( Visa4::COUNTRY_META_KEY, esc_attr( $value ) );
 		$product->save();
 	}
 
@@ -103,7 +102,7 @@ class VISA4_WooCommerce_Integration {
 
         $args = array (
             'post_type' => 'product',
-            'meta_key' => 'visa4_country',
+            'meta_key' => VIsa4::COUNTRY_META_KEY,
             'meta_value'   => array_keys( Visa4()->countries->get_countries() ),
             'meta_compare' => 'IN'
         );
@@ -111,7 +110,7 @@ class VISA4_WooCommerce_Integration {
         $result = new WP_Query( $args );
         while ( $result->have_posts() ) {
             $result->the_post();
-            $meta_countries[] = get_post_meta(  $result->post->ID, self::VISA4_COUNTRY_META_KEY, true);
+            $meta_countries[] = get_post_meta(  $result->post->ID, VISA4::COUNTRY_META_KEY, true);
         }
         wp_reset_query();
 
@@ -143,7 +142,7 @@ class VISA4_WooCommerce_Integration {
 
 		$args = array (
 			'post_type' => 'product',
-			'meta_key' => 'visa4_country',
+			'meta_key' => VISA4::COUNTRY_META_KEY,
 			'meta_value'   => $value,
 			'meta_compare' => $compare
 		);

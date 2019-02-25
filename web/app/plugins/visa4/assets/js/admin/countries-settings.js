@@ -28,7 +28,10 @@
                         $.post( ajaxurl + ( ajaxurl.indexOf( '?' ) > 0 ? '&' : '?' ) + 'action=visa4_save_admin_countries_settings', {
                             wc_shipping_classes_nonce : data.wc_shipping_classes_nonce,
                             changes                 : this.changes
-                        }, this.onSaveResponse.bind(this), 'json' );
+                        }, null, 'json' )
+                            .done(this.onSaveResponse.bind(this))
+                            .fail(this.onSaveFail.bind(this))
+                            .always(() => countryView.unblock());
                     } else {
                         this.trigger( 'saved:countries' );
                     }
@@ -57,7 +60,9 @@
                             window.alert( data.strings.save_failed );
                         }
                     }
-                    countryView.unblock();
+                },
+                onSaveFail: function () {
+                    window.alert( data.strings.save_failed );
                 }
             } ),
 
@@ -95,7 +100,7 @@
                                                     obj[key] = this.model.changes[key];
 
                                                     return obj;
-                                                }, {});
+                                                }, {}),
                         view        = this;
 
                     this.$el.empty();

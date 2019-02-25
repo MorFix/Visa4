@@ -22,6 +22,8 @@ class VISA4_Countries {
 		} elseif ( 'states' === $key ) {
 			return $this->get_states();
 		}
+
+		return null;
 	}
 
 	/**

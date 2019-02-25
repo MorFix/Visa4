@@ -1,8 +1,5 @@
 Map Countries
-	Disconnect form
-	Delete product
 	Create product
-	Update form
 	Let resize selector
 Documentation
 Remove OnAjax event
