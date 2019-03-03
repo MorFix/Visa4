@@ -15,6 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php _e( 'Use this screen to map between destination countries and the countries that are required to use visa for the given destination' ); ?>
 </p>
 
+<p>
+    <strong>
+        <?php _e( 'Some operations may take a while. It is recommended not to batch too many operations at once' ); ?>
+    </strong>
+</p>
+
 <table class="widefat">
 	<thead>
 	<tr>
@@ -60,7 +66,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 				case 'visa4-destination-country':
 					?>
 					<div class="view">
-						{{ data.name }}
+                        {{ data.name }}
+                        <div>
+                            <b>{{ data.missingPricesLabel }}</b>
+                        </div>
 						<div class="row-actions">
 							<a class="visa4-country-edit" href="#">
                                 <?php esc_html_e( 'Edit' ); ?>
@@ -69,6 +78,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 					<div class="edit">
                         {{ data.name }}
+                        <div>
+                            <b>{{ data.missingPricesLabel }}</b>
+                        </div>
 						<div class="row-actions">
 							<a class="visa4-country-cancel-edit" href="#"><?php esc_html_e( 'Cancel changes' ); ?></a>
 						</div>

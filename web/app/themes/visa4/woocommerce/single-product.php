@@ -28,7 +28,8 @@ if ( have_posts() ) :
 							<?= do_shortcode( $bg_content ); ?>
                             <div id="visa4-form">
                                 <?php
-                                if ( get_post_meta( get_the_ID(), VISA4::FORM_META_KEY , true ) ) {
+                                $form_id = get_post_meta( get_the_ID(), VISA4::FORM_META_KEY , true );
+                                if ( !empty( $form_id ) ) {
                                     add_formcraft_form( '[fc id="' . $form_id . '" align="center"/]' );
                                 }
                                 ?>

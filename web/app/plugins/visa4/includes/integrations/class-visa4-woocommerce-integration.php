@@ -245,7 +245,7 @@ class VISA4_WooCommerce_Integration {
      */
     public static function visa4_order_item_display_meta_key( $display_key, $meta ) {
         if ( $meta->key === self::FORM_SUBMISSION_ID_META_KEY ) {
-            return __( 'Form Submission ID' );
+            return __( 'Visa Form Submission' );
         }
 
         if ( $meta->key === self::VISA4_SOURCE_COUNTRY_META_KEY ) {
@@ -266,6 +266,12 @@ class VISA4_WooCommerce_Integration {
     public static function visa4_order_item_display_meta_value( $display_value, $meta ) {
         if ( $meta->key === self::VISA4_SOURCE_COUNTRY_META_KEY ) {
             return Visa4()->countries->get_countries()[ $meta->value ];
+        }
+
+        if ( $meta->key === self::FORM_SUBMISSION_ID_META_KEY ) {
+            $help_str = sprintf( __( 'Search for submission %s Here' ), $display_value );
+
+            return '<a href="' . admin_url( 'admin.php?page=formcraft-entries' ) . '" target="_blank">' . $help_str . '</a>';
         }
 
         return $display_value;

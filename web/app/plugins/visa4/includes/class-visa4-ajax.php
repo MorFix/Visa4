@@ -164,20 +164,24 @@ class VISA4_AJAX {
         }
 
         if ( isset( $country['newRow'] ) ) {
-            self::create_country( $country_code, isset( $source_countries ) ? $source_countries : null );
+            $id = self::create_country( $country_code );
 
-            return;
-        }
+            if ( is_wp_error( $id ) ) {
+                wp_send_json_error( $id->get_error_message() );
+            }
+        } else {
+            $post = Visa4()->countries_manager->get_product_by_country( $country_code );
 
-        $post = Visa4()->countries_manager->get_product_by_country( $country_code );
-        if ( !$post ) {
-            self::send_country_error( $country_code );
+            if ( !$post ) {
+                self::send_country_error( $country_code );
+            }
+
+            $id = $post->ID;
         }
 
         if ( isset( $source_countries ) ) {
-            update_post_meta( $post->ID, Visa4::SOURCE_COUNTRIES_META_KEY, $source_countries );
+            update_post_meta( $id, Visa4::SOURCE_COUNTRIES_META_KEY, $source_countries );
         }
-
 
         $error = Visa4()->countries_manager->update_form_country( absint( $country['form_id'] ), $country_code );
         if ( !empty( $error ) ) {
@@ -213,10 +217,21 @@ class VISA4_AJAX {
         // Detaching this country from it's form
         Visa4()->countries_manager->detach_form( $country_code );
 
-        // Removing the post
+        // Removing the product
         $post = Visa4()->countries_manager->get_product_by_country( $country_code );
+
         if ( !empty( $post ) ) {
-            wp_delete_post($post->ID, true);
+            $product = wc_get_product( $post->ID );
+
+            // Removing variations
+            foreach ( $product->get_children() as $child_id ) {
+                $child = wc_get_product( $child_id );
+                if ( ! empty( $child ) ) {
+                    $child->delete( true );
+                }
+            }
+
+            $product->delete( true );
         } else {
             self::send_country_error( $country_code );
         }
@@ -244,8 +259,10 @@ class VISA4_AJAX {
      *
      * @param $country_code - The requested country
      * @param $source_countries - The source countries that need visa for this destination
+     *
+     * @return int|WP_Error
      */
-    private static function create_country( $country_code, $source_countries = null )
+    private static function create_country( $country_code )
     {
         $post = Visa4()->countries_manager->get_product_by_country( $country_code );
         if ($post) {
@@ -256,17 +273,9 @@ class VISA4_AJAX {
         }
 
         /**
-         * @var $result WP_Post|WP_Error
+         * @var $result int|WP_Error
          */
-        // TODO: Implement
-        $id = Visa4()->countries_manager->create_product( $country_code );
-        if ( is_wp_error( $id ) ) {
-            wp_send_json_error($result->get_error_message());
-        }
-
-        if ( isset( $source_countries ) ) {
-            update_post_meta( $id, Visa4::SOURCE_COUNTRIES_META_KEY, $source_countries );
-        }
+        return Visa4()->countries_manager->create_product( $country_code );
     }
 }
 

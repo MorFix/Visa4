@@ -45,38 +45,58 @@ class VISA4_Countries_Manager {
      * @return array - the valid countries
      */
     public function get_countries_connected_to_product_full_data() {
-        $countries = array();
         $all_countries = Visa4()->countries->get_countries();
-
         $args = array (
-            'post_type' => 'product',
+            'type' => 'variable',
             'meta_key' => 'visa4_country',
             'meta_value'   => array_keys( $all_countries ),
             'meta_compare' => 'IN'
         );
 
-        $query = new WP_Query( $args );
+        /**
+         * @var $products WC_Product_Variable[]
+         */
+        $products = wc_get_products( $args );
 
-        while ( $query->have_posts() ): $query->the_post();
-
-            $country_code = get_post_meta( $query->post->ID, VISA4::COUNTRY_META_KEY , true );
-            $source_countries = get_post_meta( $query->post->ID, VISA4::SOURCE_COUNTRIES_META_KEY, true );
-            $form_id = get_post_meta( $query->post->ID, VISA4::FORM_META_KEY, true );
+        $countries = array();
+        foreach ( $products as $product ) {
+            $country_code = $product->get_meta( VISA4::COUNTRY_META_KEY );
+            $source_countries = $product->get_meta( VISA4::SOURCE_COUNTRIES_META_KEY );
 
             $countries[ $country_code ] = array(
                 'country_code' => $country_code,
                 'name' => $all_countries[ $country_code ],
-                'product_name' => $query->post->post_title,
-                'source_countries' => !sizeof( $source_countries ) ? null : $source_countries,
-                'edit_link' => html_entity_decode( get_edit_post_link( $query->post->ID ) ),
-                'view_link' => html_entity_decode( get_permalink( $query->post->ID ) ),
-                'form_id' => $form_id
+                'product_name' => $product->get_title(),
+                'source_countries' => empty( $source_countries ) ? null : $source_countries,
+                'edit_link' => html_entity_decode( get_edit_post_link( $product->get_id() ) ),
+                'view_link' => html_entity_decode( get_permalink( $product->get_id() ) ),
+                'form_id' => $product->get_meta( VISA4::FORM_META_KEY ),
+                'variations' => sizeof( $product->get_children() ),
+                'missing_prices' => sizeof( $this->get_no_price_variations( $product ) )
             );
-
-        endwhile;
-        wp_reset_query();
+        }
 
         return $countries;
+    }
+
+    /**
+     * Get variations that are missing a price
+     *
+     * @param  WC_Product_Variable $product - The product
+     * @return WC_Product_Variation[] - The bad variations 
+     */
+    private function get_no_price_variations( $product ) {
+        $variations = array();
+
+        foreach ( $product->get_children() as $child_id ) {
+            $variation = wc_get_product( $child_id );
+
+            if ( empty( $variation->get_price() ) ) {
+                $variations[] = $variation;
+            }
+        }
+
+        return $variations;
     }
 
     /**
@@ -247,12 +267,13 @@ class VISA4_Countries_Manager {
     private function get_product( $args ) {
         $defaults = array (
             'post_type' => 'product',
-            'posts_per_page' => '1'
+            'posts_per_page' => '1',
+	        'post_status' => 'publish'
         );
 
         $result = get_posts( array_merge( $defaults, $args ) );
 
-        if ( is_wp_error( $result ) || !$result[0] ) {
+        if ( is_wp_error( $result ) || empty( $result[0] ) ) {
             return null;
         }
 
@@ -323,18 +344,90 @@ class VISA4_Countries_Manager {
      */
     public function create_product( $country_code )
     {
-        // TODO: Check country exists
-        // TODO: Check no another product exists for this code
-        // TODO: Create product
-        // TODO: Link to country code
-        // TODO: Set virtual
-        // TODO: Create attributes
-        // TODO: Generate variations
+    	// Input checks
+    	if ( !isset( Visa4()->countries->get_countries()[ $country_code ] ) ) {
+    		return new WP_Error( 'country_fail', __( 'The requested country does not exist' ) );
+	    }
 
-        $args = array(
-            'title' => ''
-        );
+    	if ( Visa4()->countries_manager->get_product_by_country( $country_code ) !== null ) {
+    		return new WP_Error( 'country_fail', __( 'The requested country already has a product connected' ) );
+	    }
 
-        //$id = wp_insert_post( $args );
+    	$country_name = Visa4()->countries->get_countries()[ $country_code ];
+
+	    // Creating product
+    	$product = new WC_Product_Variable();
+    	$product->set_name( $country_name );
+    	$product->set_slug( strtolower( $country_name ) );
+    	$product->set_status( 'publish' );
+
+    	// Link country
+    	$product->add_meta_data( VISA4::COUNTRY_META_KEY, $country_code );
+
+	    // Addi attributes for variations
+    	$product->set_attributes( $this->get_new_country_attributes() );
+
+    	// Save
+		$id = $product->save();
+		if ( !$id ) {
+			return new WP_Error( 'country_fail', __( 'An error has occurred while creating a country' ) );
+		}
+
+		// Link variations
+	    $this->generate_all_product_variations( $product );
+
+		return $id;
     }
+
+	/**
+	 * Creating the default attributes for a new product
+	 *
+	 * @return WC_Product_Attribute[] - The attributes
+	 */
+	private function get_new_country_attributes() {
+        $product_attributes = array();
+	    foreach ( wc_get_attribute_taxonomies() as $tax ) {
+
+            $attribute = new WC_Product_Attribute();
+            $attribute_name = wc_attribute_taxonomy_name( $tax->attribute_name );
+
+            $attribute_options = get_terms( $attribute_name, array( 'hide_empty' => 0 ) );
+
+            $attribute->set_id( $tax->attribute_id );
+            $attribute->set_name( $attribute_name );
+            $attribute->set_visible( true );
+            $attribute->set_variation( true );
+            $attribute->set_options( wp_list_pluck( $attribute_options, 'term_id' ) );
+
+            $product_attributes[] = $attribute;
+        }
+
+		return $product_attributes;
+	}
+
+	/**
+	 * Generating variations from all attributes
+	 *
+	 * @param WC_Product_Variable $product - The product to create the variations on
+	 */
+	private function generate_all_product_variations( $product ) {
+		$attributes = wc_list_pluck( $product->get_attributes(), 'get_slugs' );
+		if ( empty( $attributes ) ) {
+			return;
+		}
+
+		$possible_attributes = array_reverse( wc_array_cartesian( $attributes ) );
+
+		foreach ( $possible_attributes as $possible_attribute ) {
+			$variation = new WC_Product_Variation();
+
+			$variation->set_virtual( true );
+			$variation->set_parent_id( $product->get_id() );
+			$variation->set_attributes( $possible_attribute );
+			$variation->save();
+		}
+
+		$data_store = $product->get_data_store();
+		$data_store->sort_all_product_variations( $product->get_id() );
+	}
 }

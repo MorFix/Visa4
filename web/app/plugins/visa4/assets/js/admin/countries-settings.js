@@ -126,9 +126,20 @@
                     }
                 },
                 createRowTemplate: function( rowData ) {
+                    const variations = parseInt( rowData.variations );
+                    const missingPrices = parseInt( rowData.missing_prices );
+
+                    let missingPricesLabel = '';
+                    if ( missingPrices === variations ) {
+                        missingPricesLabel = data.strings.no_prices;
+                    } else if ( missingPrices < variations ) {
+                        missingPricesLabel = data.strings.some_prices_missing;
+                    }
+
                     const row = $( this.rowTemplate( Object.assign({}, rowData, {
                         formsLink: data.formsLink,
-                        allForms: data.allForms
+                        allForms: data.allForms,
+                        missingPricesLabel
                     }) ) );
                     if ( rowData.form_id ) {
                         row.find('.conditional-no-form').hide();
@@ -249,6 +260,10 @@
                         countries = _.indexBy( model.get( 'countries' ), 'country_code' ),
                         changes = {},
                         country_code = $( this ).closest('tr').data('id');
+
+                    if ( !confirm( data.strings.delete_country_confirm.replace('{0}', countries[ country_code ].name ) ) ) {
+                        return;
+                    }
 
                     event.preventDefault();
 

@@ -40,6 +40,9 @@ class VISA4_Settings_Countries extends VISA4_Settings_Tab {
 				'allForms' => Visa4()->countries_manager->get_forms(),
 				'formsLink' => admin_url( 'admin.php?page=formcraft-dashboard' ),
 				'strings'                   => array(
+				    'some_prices_missing'     => __( 'Some prices are missing' ),
+				    'no_prices'               => __( 'NO PRICES!' ),
+				    'delete_country_confirm'  => __( 'Are you sure you want to delete {0}?' ),
 					'unload_confirmation_msg' => __( 'Your changed data will be lost if you leave this page without saving' ),
 					'save_failed'             => __( 'Your changes were not saved. Please retry.' ),
 				),
