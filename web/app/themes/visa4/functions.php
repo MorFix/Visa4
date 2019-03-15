@@ -65,3 +65,11 @@ function remove_colliding_wc_script() {
     wp_dequeue_script( 'wc-single-product' );
 }
 add_action( 'wp_enqueue_scripts', 'remove_colliding_wc_script', 20 );
+
+/**
+ * Add Visa4 them general script
+ */
+function add_general_script() {
+    wp_enqueue_script( 'visa4_general_script', get_stylesheet_directory_uri() . '/js/general.js', array( 'jquery' ), '', true );
+}
+add_action( 'wp_enqueue_scripts', 'add_general_script', 20 );

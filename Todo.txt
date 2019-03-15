@@ -1,9 +1,5 @@
 Map Countries
-	Create product
 	Let resize selector
-Documentation
-Remove OnAjax event
-Remove Sidebar widgets
 "Visa not needed" page
 WooCommerce Templates
 
